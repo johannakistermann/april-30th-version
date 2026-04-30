@@ -24,6 +24,48 @@ const AICoach = () => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setIsUploading(true);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData?.user) {
+        toast({ title: "Sign in required", description: "Please sign in to upload labs.", variant: "destructive" });
+        return;
+      }
+      const ext = file.name.split(".").pop() || "bin";
+      const path = `${userData.user.id}/labs/${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("lab-uploads").upload(path, file, {
+        contentType: file.type, upsert: false,
+      });
+      if (upErr) throw upErr;
+      const { data: { session } } = await supabase.auth.getSession();
+      const resp = await fetch(PARSE_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ filePath: path, fileName: file.name, mimeType: file.type }),
+      });
+      const json = await resp.json();
+      if (!resp.ok) throw new Error(json.error || "Parse failed");
+      setLabText(json.parsedText || "");
+      const preview = (json.parsedText || "").split("\n").slice(0, 4).join(" · ");
+      setMessages((prev) => [...prev, {
+        role: "assistant",
+        content: `I've read your lab report **${file.name}**.\n\n${preview}${preview.length ? "\n\n" : ""}Want me to summarize the highlights?`,
+      }]);
+      toast({ title: "Lab report parsed", description: "Aria can now reference your results." });
+    } catch (err) {
+      toast({ title: "Upload failed", description: (err as Error).message, variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const send = async (text: string) => {
     if (!text.trim() || isLoading) return;
     const userMsg: Msg = { role: "user", content: text.trim() };
