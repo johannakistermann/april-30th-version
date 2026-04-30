@@ -1,17 +1,23 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Sparkles } from "lucide-react";
+import { Send, Sparkles, Paperclip, Loader2 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import HealthSummary from "@/components/ai-coach/HealthSummary";
 import { trackInteraction } from "@/hooks/useInteractionTracker";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
+const PARSE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/parse-lab-upload`;
 
 const AICoach = () => {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [labText, setLabText] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
