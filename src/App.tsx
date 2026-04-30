@@ -9,6 +9,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import { GemConnectionProvider } from "@/contexts/GemConnectionContext";
 import DevGemToggle from "@/components/DevGemToggle";
 import DevTierToggle from "@/components/DevTierToggle";
+import ActiveSessionStrip from "@/components/hardware/ActiveSessionStrip";
 import Splash from "./pages/Splash";
 import Onboarding from "./pages/Onboarding";
 import Auth from "./pages/Auth";
@@ -122,6 +123,7 @@ const App = () => (
             <DevGemToggle />
             <DevTierToggle />
             <AppContent />
+            <ActiveSessionStrip />
           </BrowserRouter>
         </TooltipProvider>
       </GemConnectionProvider>
