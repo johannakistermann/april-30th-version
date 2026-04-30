@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 252 18% 5%;
+    --foreground: 45 5% 92%;
+
+    --card: 248 20% 11%;
+    --card-foreground: 45 5% 92%;
+
+    --popover: 248 20% 11%;
+    --popover-foreground: 45 5% 92%;
+
+    --primary: 40 88% 61%;
+    --primary-foreground: 252 18% 5%;
+
+    --secondary: 249 21% 30%;
+    --secondary-foreground: 45 5% 92%;
+
+    --muted: 249 21% 20%;
+    --muted-foreground: 249 10% 65%;
+
+    --accent: 249 21% 30%;
+    --accent-foreground: 45 5% 92%;
+
+    --destructive: 0 68% 61%;
+    --destructive-foreground: 45 5% 92%;
+
+    --success: 163 43% 50%;
+    --success-foreground: 252 18% 5%;
+
+    --warning: 40 88% 61%;
+    --warning-foreground: 252 18% 5%;
+
+    --info: 222 37% 55%;
+    --info-foreground: 45 5% 92%;
+
+    --border: 249 21% 18%;
+    --input: 249 21% 18%;
+    --ring: 40 88% 61%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 248 20% 8%;
+    --sidebar-foreground: 45 5% 92%;
+    --sidebar-primary: 40 88% 61%;
+    --sidebar-primary-foreground: 252 18% 5%;
+    --sidebar-accent: 249 21% 15%;
+    --sidebar-accent-foreground: 45 5% 92%;
+    --sidebar-border: 249 21% 18%;
+    --sidebar-ring: 40 88% 61%;
+
+    /* Five Element Colors */
+    --element-wood: 152 50% 45%;
+    --element-fire: 0 68% 61%;
+    --element-earth: 40 88% 61%;
+    --element-metal: 240 5% 70%;
+    --element-water: 222 37% 55%;
+
+    /* Zone Colors */
+    --zone-green: 163 43% 50%;
+    --zone-amber: 40 88% 61%;
+    --zone-red: 0 68% 61%;
+
+    /* Glass effect */
+    --glass: 249 21% 14%;
+    --glass-border: 249 21% 22%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-card/60 backdrop-blur-xl border border-[hsl(var(--glass-border))] rounded-2xl;
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.15), 0 0 60px hsl(var(--primary) / 0.05);
+  }
+
+  .glow-success {
+    box-shadow: 0 0 20px hsl(var(--success) / 0.2);
+  }
+
+  .glow-warning {
+    box-shadow: 0 0 20px hsl(var(--warning) / 0.2);
+  }
+
+  .glow-destructive {
+    box-shadow: 0 0 20px hsl(var(--destructive) / 0.2);
+  }
+
+  .zone-green {
+    @apply text-success;
+  }
+
+  .zone-amber {
+    @apply text-warning;
+  }
+
+  .zone-red {
+    @apply text-destructive;
+  }
+
+  .score-ring {
+    @apply relative inline-flex items-center justify-center;
+  }
+
+  .pillar-card {
+    @apply glass-card p-5 transition-all duration-300 hover:border-primary/30 hover:glow-primary cursor-pointer;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
