@@ -14,12 +14,21 @@ export interface SubScore {
   confidence: Confidence;
   message?: string;
   trend?: "up" | "flat" | "down";
+  acuteFlag?: boolean; // spec §6 — sub-score dropped >15 vs trend
+}
+
+export interface SeverityHitView {
+  id: string;
+  label: string;
+  severity: "mild" | "moderate" | "severe";
+  deduction: number;
 }
 
 export interface PillarScore {
   id: PillarId;
   name: string;
-  score: number; // 0..100
+  score: number; // 0..100, post severity deductions
+  rawScore: number; // 0..100, before severity deductions
   zone: Zone;
   trend: string; // "+3", "-2", "+0"
   confidence: Confidence;
@@ -27,6 +36,7 @@ export interface PillarScore {
   insight: string;
   formula: string;
   subScores: SubScore[];
+  severityHits: SeverityHitView[];
 }
 
 export interface VitalityScore {
