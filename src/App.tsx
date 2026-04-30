@@ -105,6 +105,7 @@ const AppContent = () => {
       <Route path="/clients/:clientId" element={<Protected><ClientDetail /></Protected>} />
       <Route path="/my-practitioner" element={<Protected><MyPractitioner /></Protected>} />
       <Route path="/find-practitioner" element={<Protected><FindPractitioner /></Protected>} />
+      <Route path="/subscription" element={<Protected><Subscription /></Protected>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
@@ -119,6 +120,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <DevGemToggle />
+            <DevTierToggle />
             <AppContent />
           </BrowserRouter>
         </TooltipProvider>
