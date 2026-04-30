@@ -95,8 +95,9 @@ const Home = () => {
     localStorage.setItem("lastGemSyncDate", new Date(Date.now() - 30 * 60 * 1000).toISOString());
   }
 
-  const avgScore = Math.round(PILLARS.reduce((s, p) => s + p.score, 0) / PILLARS.length);
-  const { label: avgLabel, colorClass: avgColorClass } = getScoreLabel(avgScore);
+  const { vitality, pillars, control, bodyState, baselineRemaining } = useVitality();
+  const vitalityZoneColor = vitality.zone === "green" ? "success" : vitality.zone === "amber" ? "warning" : "destructive";
+  const { label: avgLabel, colorClass: avgColorClass } = getScoreLabel(vitality.score);
 
   const streakCount = STREAK_DAYS.filter((d) => d.done).length;
   return (
