@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import BottomNav from "@/components/BottomNav";
 import { usePractitionerRole } from "@/hooks/usePractitionerRole";
 import { toast } from "@/hooks/use-toast";
+import { useTier, TIER_LABEL } from "@/lib/subscription/mockTier";
 
 const MENU_ITEMS = [
   { label: "Connect GEM Wearable", icon: Watch, desc: "Pair via Bluetooth", action: true },
@@ -17,6 +18,7 @@ const MENU_ITEMS = [
 const Profile = () => {
   const navigate = useNavigate();
   const { isPractitioner, loading: roleLoading, togglePractitioner } = usePractitionerRole();
+  const { tier } = useTier();
 
   const handleTogglePractitioner = async () => {
     const wasAlreadyPractitioner = isPractitioner;
@@ -46,9 +48,15 @@ const Profile = () => {
           <div className="flex-1">
             <p className="text-sm font-display font-semibold">Alex Johnson</p>
             <p className="text-xs text-muted-foreground">alex@email.com</p>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
               <span className="text-[10px] bg-element-wood/20 text-element-wood px-2 py-0.5 rounded-full">🌿 Wood</span>
               <span className="text-[10px] bg-success/20 text-success px-2 py-0.5 rounded-full">⏳ -3.2y</span>
+              <button
+                onClick={() => navigate("/subscription")}
+                className="text-[10px] bg-primary/15 text-primary px-2 py-0.5 rounded-full font-display font-medium hover:bg-primary/25"
+              >
+                {TIER_LABEL[tier]}
+              </button>
             </div>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
