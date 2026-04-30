@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Smartphone, Gem, Zap, Play, Activity, Heart, Brain, Leaf, Focus, Sparkles, ChevronDown, Moon } from "lucide-react";
 import TopMenu from "@/components/TopMenu";
 import BottomNav from "@/components/BottomNav";
+import { useMockHardware, type DeviceKind } from "@/lib/hardware/mockHardware";
 
 const CORRECT_FOLDERS = [
   {
@@ -92,9 +93,15 @@ const Protect = () => {
   const navigate = useNavigate();
   const [source, setSource] = useState<Source>("phone");
   const [expandedFolder, setExpandedFolder] = useState<string | null>(null);
+  const { startProgram } = useMockHardware();
 
   const toggleFolder = (name: string) => {
     setExpandedFolder((prev) => (prev === name ? null : name));
+  };
+
+  const launchProgram = (programName: string) => {
+    const device: DeviceKind = source === "mihealth" ? "mihealth" : "gem";
+    startProgram(device, programName, 30);
   };
 
   return (
@@ -164,9 +171,10 @@ const Protect = () => {
                   {folder.programs.map((program) => (
                     <button
                       key={program}
+                      onClick={() => launchProgram(program)}
                       className="glass-card px-4 py-2.5 text-xs font-display font-medium hover:border-primary/30 transition-colors flex items-center gap-2 active:scale-[0.98]"
                     >
-                      <Play className="w-3 h-3 text-muted-foreground" />
+                      <Play className="w-3 h-3 text-primary" />
                       {program}
                     </button>
                   ))}
