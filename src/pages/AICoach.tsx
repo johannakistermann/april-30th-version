@@ -1,22 +1,70 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Sparkles } from "lucide-react";
+import { Send, Sparkles, Paperclip, Loader2 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import HealthSummary from "@/components/ai-coach/HealthSummary";
 import { trackInteraction } from "@/hooks/useInteractionTracker";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
+const PARSE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/parse-lab-upload`;
 
 const AICoach = () => {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [labText, setLabText] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setIsUploading(true);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData?.user) {
+        toast({ title: "Sign in required", description: "Please sign in to upload labs.", variant: "destructive" });
+        return;
+      }
+      const ext = file.name.split(".").pop() || "bin";
+      const path = `${userData.user.id}/labs/${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("lab-uploads").upload(path, file, {
+        contentType: file.type, upsert: false,
+      });
+      if (upErr) throw upErr;
+      const { data: { session } } = await supabase.auth.getSession();
+      const resp = await fetch(PARSE_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ filePath: path, fileName: file.name, mimeType: file.type }),
+      });
+      const json = await resp.json();
+      if (!resp.ok) throw new Error(json.error || "Parse failed");
+      setLabText(json.parsedText || "");
+      const preview = (json.parsedText || "").split("\n").slice(0, 4).join(" · ");
+      setMessages((prev) => [...prev, {
+        role: "assistant",
+        content: `I've read your lab report **${file.name}**.\n\n${preview}${preview.length ? "\n\n" : ""}Want me to summarize the highlights?`,
+      }]);
+      toast({ title: "Lab report parsed", description: "Aria can now reference your results." });
+    } catch (err) {
+      toast({ title: "Upload failed", description: (err as Error).message, variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const send = async (text: string) => {
     if (!text.trim() || isLoading) return;
@@ -38,7 +86,10 @@ const AICoach = () => {
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
         body: JSON.stringify({
-          messages: allMessages.map((m) => ({ role: m.role, content: m.content })),
+          messages: [
+            ...(labText ? [{ role: "system", content: `User's most recent uploaded lab report (parsed):\n\n${labText.slice(0, 4000)}` }] : []),
+            ...allMessages.map((m) => ({ role: m.role, content: m.content })),
+          ],
           model: "google/gemini-3-flash-preview",
           stream: true,
         }),
@@ -162,22 +213,40 @@ const AICoach = () => {
       <div className="sticky bottom-16 z-20 px-4 py-3 border-t border-border/40 bg-card/80 backdrop-blur-xl">
         <form
           onSubmit={(e) => { e.preventDefault(); send(input); }}
-          className="relative flex items-center"
+          className="relative flex items-center gap-2"
         >
           <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask your health coach..."
-            className="w-full bg-muted rounded-xl pl-4 pr-12 py-3 text-sm text-foreground placeholder:text-foreground/50 outline-none focus:ring-1 focus:ring-primary/50"
-            disabled={isLoading}
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,image/*"
+            onChange={handleFileUpload}
+            className="hidden"
           />
           <button
-            type="submit"
-            disabled={!input.trim() || isLoading}
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center text-primary disabled:opacity-30 transition-opacity"
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading || isLoading}
+            title="Upload lab report (PDF or photo)"
+            className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-primary disabled:opacity-30 flex-shrink-0"
           >
-            <Send className="w-4 h-4" />
+            {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Paperclip className="w-4 h-4" />}
           </button>
+          <div className="relative flex-1">
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={labText ? "Ask about your labs…" : "Ask your health coach..."}
+              className="w-full bg-muted rounded-xl pl-4 pr-12 py-3 text-sm text-foreground placeholder:text-foreground/50 outline-none focus:ring-1 focus:ring-primary/50"
+              disabled={isLoading}
+            />
+            <button
+              type="submit"
+              disabled={!input.trim() || isLoading}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center text-primary disabled:opacity-30 transition-opacity"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
         </form>
       </div>
 

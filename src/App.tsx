@@ -8,6 +8,8 @@ import AuthGuard from "@/components/AuthGuard";
 import { CartProvider } from "@/contexts/CartContext";
 import { GemConnectionProvider } from "@/contexts/GemConnectionContext";
 import DevGemToggle from "@/components/DevGemToggle";
+import DevTierToggle from "@/components/DevTierToggle";
+import ActiveSessionStrip from "@/components/hardware/ActiveSessionStrip";
 import Splash from "./pages/Splash";
 import Onboarding from "./pages/Onboarding";
 import Auth from "./pages/Auth";
@@ -47,6 +49,7 @@ import Home from "./pages/Home";
 import MyPractitioner from "./pages/MyPractitioner";
 import FindPractitioner from "./pages/FindPractitioner";
 import ClientDetail from "./pages/ClientDetail";
+import Subscription from "./pages/Subscription";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -103,6 +106,7 @@ const AppContent = () => {
       <Route path="/clients/:clientId" element={<Protected><ClientDetail /></Protected>} />
       <Route path="/my-practitioner" element={<Protected><MyPractitioner /></Protected>} />
       <Route path="/find-practitioner" element={<Protected><FindPractitioner /></Protected>} />
+      <Route path="/subscription" element={<Protected><Subscription /></Protected>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
@@ -117,7 +121,9 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <DevGemToggle />
+            <DevTierToggle />
             <AppContent />
+            <ActiveSessionStrip />
           </BrowserRouter>
         </TooltipProvider>
       </GemConnectionProvider>

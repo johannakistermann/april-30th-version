@@ -11,8 +11,8 @@ export function computeVitality(
   hasGem: boolean,
 ): VitalityScore {
   const voltage = (energy.score + recovery.score) / 2;
-  const resistanceEfficiency = stress.score / 100;
-  const score = Math.round(voltage * resistanceEfficiency);
+  const resistanceEfficiency = Math.max(0, Math.min(1, stress.score / 100));
+  const score = Math.max(0, Math.min(100, Math.round(voltage * resistanceEfficiency)));
   return {
     score,
     voltage: Math.round(voltage * 10) / 10,

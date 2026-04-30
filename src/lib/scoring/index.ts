@@ -6,9 +6,11 @@ import { generateDailyPattern } from "./bodyState";
 import { buildAllPillars } from "./pillars";
 import { computeVitality } from "./vitality";
 import { mockWitnesses } from "./mockWitnesses";
+import { getBaseline, type Baseline } from "./baseline";
 import type { PillarScore, VitalityScore, DailyEnergyPattern } from "./types";
 
-export type { PillarScore, VitalityScore, DailyEnergyPattern, BodyState, SubScore, Confidence, Zone, PillarId } from "./types";
+export type { PillarScore, VitalityScore, DailyEnergyPattern, BodyState, SubScore, Confidence, Zone, PillarId, SeverityHitView } from "./types";
+export type { Baseline } from "./baseline";
 
 interface UseVitalityResult {
   vitality: VitalityScore;
@@ -17,8 +19,9 @@ interface UseVitalityResult {
   bodyState: DailyEnergyPattern;
   hasScan: boolean;
   scanCount: number;
-  isStale: boolean; // >24h since last scan
-  baselineRemaining: number; // 0 once scanCount >= 4
+  isStale: boolean;
+  baselineRemaining: number;
+  baseline: Baseline;
 }
 
 const DEFAULT_USER = "guest-anon";
@@ -49,6 +52,7 @@ export function useVitality(): UseVitalityResult {
     const vitality = computeVitality(energy, recovery, stress, trends.vitality, isGemConnected);
     const lastScan = lastScanRaw ? new Date(lastScanRaw) : null;
     const isStale = lastScan ? Date.now() - lastScan.getTime() > 24 * 60 * 60 * 1000 : false;
+    const baseline = getBaseline(scanCount);
     return {
       vitality,
       pillars: { energy, recovery, stress },
@@ -58,6 +62,7 @@ export function useVitality(): UseVitalityResult {
       scanCount,
       isStale,
       baselineRemaining: Math.max(0, 4 - scanCount),
+      baseline,
     };
   }, [userId, isGemConnected, lastScanRaw, scanCount]);
 }

@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Lock, TrendingUp, TrendingDown, Minus, Info, Zap, Heart, Brain, Gauge } from "lucide-react";
+import { ArrowLeft, Lock, TrendingUp, TrendingDown, Minus, Info, Zap, Heart, Brain, Gauge, AlertTriangle } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { useVitality } from "@/lib/scoring";
 import DailyEnergyStrip from "@/components/scoring/DailyEnergyStrip";
@@ -22,7 +22,7 @@ const zoneColor = (zone: string) =>
 const PillarDetail = () => {
   const navigate = useNavigate();
   const { pillarId } = useParams<{ pillarId: string }>();
-  const { control, pillars, bodyState, baselineRemaining } = useVitality();
+  const { control, pillars, bodyState, baselineRemaining, baseline } = useVitality();
 
   const allPillars: Record<PillarId, PillarScore> = {
     control,
@@ -96,8 +96,8 @@ const PillarDetail = () => {
               <span className={`text-xs bg-${color}/20 text-${color} px-2 py-0.5 rounded-full font-medium capitalize`}>
                 {pillar.zone} Zone
               </span>
-              {baselineRemaining > 0 ? (
-                <span className="text-[10px] text-primary">Baseline {4 - baselineRemaining}/4</span>
+              {baseline.isEstablishing ? (
+                <span className="text-[10px] text-primary">{baseline.label}</span>
               ) : (
                 <span className={`text-xs flex items-center gap-0.5 ${trendUp ? "text-success" : pillar.trend.startsWith("-") ? "text-destructive" : "text-muted-foreground"}`}>
                   {trendUp ? <TrendingUp className="w-3 h-3" /> : pillar.trend.startsWith("-") ? <TrendingDown className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
@@ -118,6 +118,35 @@ const PillarDetail = () => {
           <p className="text-xs text-muted-foreground">{pillar.insight}</p>
         </div>
       </div>
+
+      {/* Severity hits (spec §6) */}
+      {pillar.severityHits.length > 0 && (
+        <div className="px-6 mb-4">
+          <div className="glass-card p-3 border-warning/20">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertTriangle className="w-3.5 h-3.5 text-warning" />
+              <p className="text-[11px] font-display font-semibold text-warning">Severity hits this week</p>
+              <span className="text-[10px] text-muted-foreground ml-auto">
+                Raw {pillar.rawScore} → {pillar.score}
+              </span>
+            </div>
+            <div className="space-y-1.5">
+              {pillar.severityHits.map((h) => (
+                <div key={h.id} className="flex items-center justify-between text-[11px]">
+                  <span className="text-foreground/80">{h.label}</span>
+                  <span className="flex items-center gap-2">
+                    <span className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded ${
+                      h.severity === "severe" ? "bg-destructive/15 text-destructive" :
+                      h.severity === "moderate" ? "bg-warning/15 text-warning" : "bg-muted text-muted-foreground"
+                    }`}>{h.severity}</span>
+                    <span className="font-display font-semibold text-destructive">−{h.deduction}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Daily Energy Pattern strip — Energy pillar only */}
       {activeId === "energy" && (
@@ -141,6 +170,9 @@ const PillarDetail = () => {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   {sub.locked && <Lock className="w-3.5 h-3.5 text-muted-foreground" />}
+                  {sub.acuteFlag && (
+                    <span title="Acute drop vs trend (>15)" className="w-2 h-2 rounded-full bg-warning animate-pulse" />
+                  )}
                   <span className="text-sm font-medium">{sub.name}</span>
                   <span className="text-[10px] text-muted-foreground">
                     ({sub.locked ? `${baseWeightPct}% locked` : `${weightPct}%`}{redistributed ? ` · base ${baseWeightPct}%` : ""})
