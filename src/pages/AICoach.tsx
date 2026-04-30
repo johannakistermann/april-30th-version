@@ -86,7 +86,10 @@ const AICoach = () => {
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
         body: JSON.stringify({
-          messages: allMessages.map((m) => ({ role: m.role, content: m.content })),
+          messages: [
+            ...(labText ? [{ role: "system", content: `User's most recent uploaded lab report (parsed):\n\n${labText.slice(0, 4000)}` }] : []),
+            ...allMessages.map((m) => ({ role: m.role, content: m.content })),
+          ],
           model: "google/gemini-3-flash-preview",
           stream: true,
         }),
