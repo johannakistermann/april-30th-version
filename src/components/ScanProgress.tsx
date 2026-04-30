@@ -1,15 +1,17 @@
 import { cn } from "@/lib/utils";
 
-const STEPS = ["Prepare", "Scan", "Results"];
+const STEPS = ["Prepare", "Capture", "Voice", "Results"];
 
 interface ScanProgressProps {
-  currentStep: 0 | 1 | 2;
+  currentStep: 0 | 1 | 2 | 3;
+  totalSteps?: 3 | 4;
 }
 
-const ScanProgress = ({ currentStep }: ScanProgressProps) => {
+const ScanProgress = ({ currentStep, totalSteps = 4 }: ScanProgressProps) => {
+  const labels = totalSteps === 3 ? ["Prepare", "Scan", "Results"] : STEPS;
   return (
     <div className="flex items-center justify-center gap-2 py-3">
-      {STEPS.map((label, i) => (
+      {labels.map((label, i) => (
         <div key={label} className="flex items-center gap-2">
           <div className="flex items-center gap-1.5">
             <div
@@ -31,7 +33,7 @@ const ScanProgress = ({ currentStep }: ScanProgressProps) => {
               {label}
             </span>
           </div>
-          {i < STEPS.length - 1 && (
+          {i < labels.length - 1 && (
             <div
               className={cn(
                 "w-6 h-px transition-colors",

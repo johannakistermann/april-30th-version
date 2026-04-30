@@ -14,7 +14,8 @@ const TIPS = [
 const MirrorCheck = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const isDeepScan = location.state?.deepScan === true;
+  // Default to deep (full weekly) scan unless explicitly disabled
+  const isDeepScan = location.state?.deepScan !== false;
   const [ready, setReady] = useState(false);
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
@@ -90,7 +91,7 @@ const MirrorCheck = () => {
 
           <div className="space-y-2">
             <h1 className="text-2xl font-display font-bold">
-              {isDeepScan ? "Deep Scan" : "Mirror Check"}
+              {isDeepScan ? "Weekly Scan" : "Quick Scan"}
             </h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Quick tips for the best results:
@@ -121,8 +122,8 @@ const MirrorCheck = () => {
           <div className="w-full space-y-2 mt-2">
             <p className="text-[10px] text-muted-foreground">
               {isDeepScan
-                ? "Step 1: 60s Mirror Check captures face, voice & tongue. Step 2: Extended voice analysis (~2 min)."
-                : "This 60-second scan captures face, voice, and tongue data for your daily health reading."}
+                ? "Captures face, tongue and voice — about 2 minutes. Powers your Vitality Score and all four pillars."
+                : "Quick 60-second face, tongue, and voice capture."}
             </p>
             <Button
               onClick={handleStart}
@@ -145,6 +146,24 @@ const MirrorCheck = () => {
   }
 
   // Go directly into ScanVideoView with the existing stream
+  const recordCompletion = () => {
+    const prevLast = localStorage.getItem("lastScanDate");
+    const prevStreak = parseInt(localStorage.getItem("scanStreak") || "0", 10) || 0;
+    const now = new Date();
+    let nextStreak = prevStreak + 1;
+    if (prevLast) {
+      const days = (now.getTime() - new Date(prevLast).getTime()) / (24 * 60 * 60 * 1000);
+      // Streak resets if more than 14 days since last scan
+      if (days > 14) nextStreak = 1;
+    } else {
+      nextStreak = 1;
+    }
+    localStorage.setItem("lastScanDate", now.toISOString());
+    localStorage.setItem("scanStreak", String(nextStreak));
+    const total = parseInt(localStorage.getItem("scanCount") || "0", 10) || 0;
+    localStorage.setItem("scanCount", String(total + 1));
+  };
+
   if (cameraStream) {
     return (
       <ScanVideoView
@@ -152,8 +171,10 @@ const MirrorCheck = () => {
         isDeepScan={isDeepScan}
         onComplete={() => {
           if (isDeepScan) {
+            // Continue into extended voice tasks; final completion happens in DeepScan
             navigate("/deep-scan", { state: { fromMirrorCheck: true } });
           } else {
+            recordCompletion();
             navigate("/results-loading");
           }
         }}

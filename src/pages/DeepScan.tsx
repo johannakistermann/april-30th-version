@@ -28,6 +28,21 @@ const DeepScan = () => {
             return 0;
           } else {
             clearInterval(interval);
+            // Record completion of full Weekly Scan
+            const prevLast = localStorage.getItem("lastScanDate");
+            const prevStreak = parseInt(localStorage.getItem("scanStreak") || "0", 10) || 0;
+            const now = new Date();
+            let nextStreak = prevStreak + 1;
+            if (prevLast) {
+              const days = (now.getTime() - new Date(prevLast).getTime()) / (24 * 60 * 60 * 1000);
+              if (days > 14) nextStreak = 1;
+            } else {
+              nextStreak = 1;
+            }
+            localStorage.setItem("lastScanDate", now.toISOString());
+            localStorage.setItem("scanStreak", String(nextStreak));
+            const total = parseInt(localStorage.getItem("scanCount") || "0", 10) || 0;
+            localStorage.setItem("scanCount", String(total + 1));
             setTimeout(() => navigate("/results-loading"), 500);
             return next;
           }
@@ -66,7 +81,7 @@ const DeepScan = () => {
           />
         ))}
       </div>
-      <p className="text-[10px] text-muted-foreground text-center mb-4">Deep Scan — Extended Voice Analysis</p>
+      <p className="text-[10px] text-muted-foreground text-center mb-4">Weekly Scan — Voice Analysis</p>
 
       {/* Main area */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 gap-8">
@@ -117,7 +132,7 @@ const DeepScan = () => {
       {/* Total progress */}
       <div className="px-6 pb-10">
         <div className="flex justify-between text-xs text-muted-foreground font-display mb-2">
-          <span>Deep Scan — Step 2</span>
+          <span>Weekly Scan — Voice</span>
           <span>~{Math.ceil((totalDuration - totalElapsed) / 60)} min remaining</span>
         </div>
         <div className="w-full h-1 bg-muted rounded-full overflow-hidden">

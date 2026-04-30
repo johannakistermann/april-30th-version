@@ -44,7 +44,7 @@ const Home = () => {
   
   const { isPractitioner } = usePractitionerRole();
   const [hasActivePractitioner, setHasActivePractitioner] = useState(false);
-  const [scanDialogOpen, setScanDialogOpen] = useState(false);
+  // scan dialog removed — single Weekly Scan, navigate directly
   const [devicePickerOpen, setDevicePickerOpen] = useState(false);
 
   const hasScanned = useMemo(() => {
@@ -115,7 +115,7 @@ const Home = () => {
         <div className="grid grid-cols-2 gap-1.5">
           {/* Scan Source */}
           <button
-            onClick={() => setScanDialogOpen(true)}
+            onClick={() => navigate("/mirror-check")}
             className={`glass-card p-1.5 flex items-center gap-1.5 text-left transition-colors active:scale-[0.98] ${
               (() => {
                 const last = localStorage.getItem("lastScanDate");
@@ -188,7 +188,7 @@ const Home = () => {
       {/* Scan CTA */}
       <div className="px-6 mb-5">
         <button
-          onClick={() => setScanDialogOpen(true)}
+          onClick={() => navigate("/mirror-check")}
           className="w-full flex items-center justify-center gap-3 py-4 px-6 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-base shadow-lg hover:bg-primary/90 transition-all active:scale-[0.97]"
           style={{ boxShadow: "0 4px 24px hsl(var(--primary) / 0.35)" }}
         >
@@ -452,42 +452,7 @@ const Home = () => {
       </div>
 
 
-      {/* Scan Type Picker Dialog */}
-      <Dialog open={scanDialogOpen} onOpenChange={setScanDialogOpen}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="font-display">Choose Scan Type</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 pt-2">
-            <button
-              onClick={() => { setScanDialogOpen(false); navigate("/mirror-check"); }}
-              className="glass-card p-4 w-full flex items-center gap-4 text-left hover:border-primary/20 transition-colors active:scale-[0.98]"
-            >
-              <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Scan className="w-5 h-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-display font-semibold">Quick Scan</p>
-                <p className="text-[11px] text-muted-foreground">~60s · Face, voice &amp; tongue snapshot</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            </button>
-            <button
-              onClick={() => { setScanDialogOpen(false); navigate("/deep-scan"); }}
-              className="glass-card p-4 w-full flex items-center gap-4 text-left hover:border-primary/20 transition-colors active:scale-[0.98]"
-            >
-              <div className="w-11 h-11 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
-                <Zap className="w-5 h-5 text-accent-foreground" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-display font-semibold">Deep Scan</p>
-                <p className="text-[11px] text-muted-foreground">~3 min · Mirror check + vocal biomarkers</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            </button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Weekly Scan navigates directly — no picker needed (single canonical scan) */}
 
       {/* Device Picker Dialog */}
       <Dialog open={devicePickerOpen} onOpenChange={setDevicePickerOpen}>
