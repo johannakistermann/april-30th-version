@@ -197,9 +197,9 @@ const Home = () => {
         </button>
       </div>
 
-      {/* 3. Health Score + GEM State combined card */}
+      {/* 3. Vitality Score hero */}
       {hasScanned && (
-        <div className="px-6 mb-4">
+        <div className="px-6 mb-3">
           <button
             onClick={() => navigate("/dashboard")}
             className="glass-card p-5 w-full text-left hover:border-primary/20 transition-colors active:scale-[0.98]"
@@ -210,27 +210,76 @@ const Home = () => {
                   <circle cx="50" cy="50" r="42" fill="none" stroke="hsl(var(--muted))" strokeWidth="5" />
                   <circle
                     cx="50" cy="50" r="42" fill="none"
-                    stroke="hsl(var(--primary))"
+                    stroke={`hsl(var(--${vitalityZoneColor}))`}
                     strokeWidth="5"
                     strokeLinecap="round"
                     strokeDasharray={`${2 * Math.PI * 42}`}
-                    strokeDashoffset={`${2 * Math.PI * 42 * (1 - avgScore / 100)}`}
+                    strokeDashoffset={`${2 * Math.PI * 42 * (1 - vitality.score / 100)}`}
                     className="transition-all duration-500"
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-xl font-display font-bold">{avgScore}</span>
+                  <span className="text-xl font-display font-bold">{vitality.score}</span>
                   <span className={`text-[9px] font-display font-medium ${avgColorClass}`}>{avgLabel}</span>
                 </div>
               </div>
               <div className="flex-1">
-                <p className="text-sm font-display font-semibold">Health Score</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">Tap to view full breakdown</p>
+                <p className="text-sm font-display font-semibold">Vitality Score</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  Voltage {vitality.voltage} × Resistance {vitality.resistanceEfficiency.toFixed(2)}
+                </p>
+                {baselineRemaining > 0 ? (
+                  <p className="text-[10px] text-primary mt-1 font-display">Scan weekly to establish baseline ({4 - baselineRemaining}/4)</p>
+                ) : (
+                  <p className="text-[10px] text-muted-foreground mt-1">Trend {vitality.trend} · Confidence {vitality.confidence}</p>
+                )}
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
             </div>
 
+            {/* 3-pillar contributors strip (Energy / Recovery / Stress) */}
+            <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-border/30">
+              {[pillars.energy, pillars.recovery, pillars.stress].map(p => {
+                const c = p.zone === "green" ? "success" : p.zone === "amber" ? "warning" : "destructive";
+                return (
+                  <div key={p.id} className="flex flex-col items-center text-center">
+                    <span className={`text-base font-display font-bold text-${c}`}>{p.score}</span>
+                    <span className="text-[9px] text-muted-foreground font-display leading-tight">{p.id === "stress-nervous" ? "Stress" : p.name}</span>
+                  </div>
+                );
+              })}
+            </div>
           </button>
+        </div>
+      )}
+
+      {/* Control tile — "This Week's Bioenergetic Priorities" (spec §9A.4) */}
+      {hasScanned && (
+        <div className="px-6 mb-4">
+          <button
+            onClick={() => navigate(`/pillar/control`)}
+            className="glass-card p-3 w-full flex items-center gap-3 text-left border-primary/20 hover:border-primary/40 transition-colors active:scale-[0.98]"
+          >
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-display font-medium">This Week's Bioenergetic Priorities</p>
+              <p className="text-xs font-display font-semibold mt-0.5">Control · {control.score}</p>
+              <p className="text-[10px] text-muted-foreground truncate">{control.insight}</p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+          </button>
+        </div>
+      )}
+
+      {/* Daily Energy Pattern strip */}
+      {hasScanned && isGemConnected && bodyState.states.length > 0 && (
+        <div className="px-6 mb-4">
+          <div className="glass-card p-3">
+            <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-display font-medium mb-2">Daily Energy Pattern · last 24h</p>
+            <DailyEnergyStrip pattern={bodyState} compact />
+          </div>
         </div>
       )}
 
