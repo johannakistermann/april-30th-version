@@ -1,74 +1,116 @@
 import { useNavigate } from "react-router-dom";
-import { Scan, Activity, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Scan, Users, Flame, Clock } from "lucide-react";
 import TopMenu from "@/components/TopMenu";
 import BottomNav from "@/components/BottomNav";
+import { Button } from "@/components/ui/button";
 
-const SCAN_OPTIONS = [
-  {
-    title: "Mirror Check",
-    duration: "~60s",
-    description: "Daily 60-second check — face scan, tongue photos & voice recording",
-    icon: Scan,
-    color: "text-primary",
-    bg: "bg-primary/10",
-    action: () => ({ path: "/mirror-check", state: {} }),
-  },
-  {
-    title: "Deep Scan",
-    duration: "~3 min",
-    description: "Full mirror check plus extended voice analysis — sustained phonation, breath count & Rainbow Passage",
-    icon: Activity,
-    color: "text-info",
-    bg: "bg-info/10",
-    action: () => ({ path: "/mirror-check", state: { deepScan: true } }),
-  },
-  {
-    title: "Guest Scan",
-    duration: "~60s",
-    description: "Quick face, tongue & voice scan for a friend — no account needed",
-    icon: Users,
-    color: "text-success",
-    bg: "bg-success/10",
-    action: () => ({ path: "/guest-scan", state: {} }),
-  },
-];
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 const ScanHub = () => {
   const navigate = useNavigate();
+  const [lastScanAt, setLastScanAt] = useState<Date | null>(null);
+  const [streak, setStreak] = useState(0);
 
-  const handleScan = (option: (typeof SCAN_OPTIONS)[number]) => {
-    localStorage.setItem("lastScanDate", new Date().toISOString());
-    const { path, state } = option.action();
-    navigate(path, { state });
+  useEffect(() => {
+    const last = localStorage.getItem("lastScanDate");
+    if (last) setLastScanAt(new Date(last));
+    const s = parseInt(localStorage.getItem("scanStreak") || "0", 10);
+    setStreak(Number.isFinite(s) ? s : 0);
+  }, []);
+
+  const startScan = () => {
+    navigate("/mirror-check", { state: { deepScan: true } });
   };
+
+  const now = Date.now();
+  const msSinceLast = lastScanAt ? now - lastScanAt.getTime() : Infinity;
+  const dueNow = msSinceLast >= WEEK_MS;
+  const daysUntilNext = dueNow ? 0 : Math.ceil((WEEK_MS - msSinceLast) / (24 * 60 * 60 * 1000));
+
+  const lastLabel = !lastScanAt
+    ? "No scans yet"
+    : msSinceLast < 60 * 60 * 1000
+    ? "Less than an hour ago"
+    : msSinceLast < 24 * 60 * 60 * 1000
+    ? `${Math.floor(msSinceLast / (60 * 60 * 1000))}h ago`
+    : `${Math.floor(msSinceLast / (24 * 60 * 60 * 1000))}d ago`;
 
   return (
     <div className="min-h-screen bg-background pb-24">
       <TopMenu />
       <div className="px-6 pt-12 pb-4">
-        <h1 className="text-lg font-display font-semibold">Choose Your Scan</h1>
-        <p className="text-xs text-muted-foreground mt-1">Pick the scan that fits your moment</p>
+        <h1 className="text-lg font-display font-semibold">Weekly Scan</h1>
+        <p className="text-xs text-muted-foreground mt-1">
+          One full scan a week powers your Vitality Score
+        </p>
       </div>
 
-      <div className="px-6 space-y-3">
-        {SCAN_OPTIONS.map((option) => (
-          <button
-            key={option.title}
-            onClick={() => handleScan(option)}
-            className="glass-card p-5 w-full flex items-start gap-4 text-left hover:border-primary/20 transition-colors"
-          >
-            <div className={`w-12 h-12 rounded-2xl ${option.bg} flex items-center justify-center flex-shrink-0`}>
-              <option.icon className={`w-6 h-6 ${option.color}`} />
+      {/* Hero card */}
+      <div className="px-6">
+        <div className="glass-card p-6 flex flex-col gap-5">
+          <div className="flex items-start gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Scan className="w-7 h-7 text-primary" />
             </div>
             <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-display font-semibold">{option.title}</span>
-                <span className="text-[10px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">{option.duration}</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">{option.description}</p>
+              <h2 className="text-xl font-display font-bold">
+                {dueNow ? "Your scan is ready" : "You're up to date"}
+              </h2>
+              <p className="text-xs text-muted-foreground mt-1">
+                Face, tongue, and voice — about 2 minutes. Captures all four pillars at once.
+              </p>
             </div>
-          </button>
-        ))}
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl bg-muted/40 p-3 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-primary" />
+              <div>
+                <p className="text-[10px] text-muted-foreground">Last scan</p>
+                <p className="text-xs font-display font-semibold">{lastLabel}</p>
+              </div>
+            </div>
+            <div className="rounded-xl bg-muted/40 p-3 flex items-center gap-2">
+              <Flame className="w-4 h-4 text-warning" />
+              <div>
+                <p className="text-[10px] text-muted-foreground">Streak</p>
+                <p className="text-xs font-display font-semibold">
+                  {streak} {streak === 1 ? "week" : "weeks"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <Button
+            onClick={startScan}
+            className="w-full h-14 text-lg font-display font-semibold rounded-2xl bg-primary text-primary-foreground glow-primary active:scale-[0.98]"
+          >
+            {dueNow ? "Start Weekly Scan" : "Scan again"}
+          </Button>
+
+          {!dueNow && (
+            <p className="text-[11px] text-muted-foreground text-center">
+              Next scan due in {daysUntilNext} {daysUntilNext === 1 ? "day" : "days"}
+            </p>
+          )}
+        </div>
+
+        {/* Guest scan secondary */}
+        <button
+          onClick={() => navigate("/guest-scan")}
+          className="mt-4 w-full glass-card p-4 flex items-center gap-3 text-left active:scale-[0.98] transition-transform"
+        >
+          <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center flex-shrink-0">
+            <Users className="w-5 h-5 text-success" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-display font-semibold">Guest Scan</p>
+            <p className="text-[11px] text-muted-foreground">
+              Quick reading for a friend — no account needed
+            </p>
+          </div>
+        </button>
       </div>
 
       <BottomNav />
