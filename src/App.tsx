@@ -8,6 +8,7 @@ import AuthGuard from "@/components/AuthGuard";
 import { CartProvider } from "@/contexts/CartContext";
 import { GemConnectionProvider } from "@/contexts/GemConnectionContext";
 import DevGemToggle from "@/components/DevGemToggle";
+import DevTierToggle from "@/components/DevTierToggle";
 import Splash from "./pages/Splash";
 import Onboarding from "./pages/Onboarding";
 import Auth from "./pages/Auth";
@@ -47,6 +48,7 @@ import Home from "./pages/Home";
 import MyPractitioner from "./pages/MyPractitioner";
 import FindPractitioner from "./pages/FindPractitioner";
 import ClientDetail from "./pages/ClientDetail";
+import Subscription from "./pages/Subscription";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
