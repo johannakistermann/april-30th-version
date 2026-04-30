@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow } from "date-fns";
 import { useVitality } from "@/lib/scoring";
 import DailyEnergyStrip from "@/components/scoring/DailyEnergyStrip";
+import WeeklyRecsCard from "@/components/recommendations/WeeklyRecsCard";
 
 const PILLAR_ICON: Record<string, any> = {
   energy: Zap, recovery: Heart, "stress-nervous": Brain, control: Gauge,
