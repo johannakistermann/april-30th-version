@@ -81,7 +81,7 @@ const DeepScan = () => {
           />
         ))}
       </div>
-      <p className="text-[10px] text-muted-foreground text-center mb-4">Deep Scan — Extended Voice Analysis</p>
+      <p className="text-[10px] text-muted-foreground text-center mb-4">Weekly Scan — Voice Analysis</p>
 
       {/* Main area */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 gap-8">
@@ -132,7 +132,7 @@ const DeepScan = () => {
       {/* Total progress */}
       <div className="px-6 pb-10">
         <div className="flex justify-between text-xs text-muted-foreground font-display mb-2">
-          <span>Deep Scan — Step 2</span>
+          <span>Weekly Scan — Voice</span>
           <span>~{Math.ceil((totalDuration - totalElapsed) / 60)} min remaining</span>
         </div>
         <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
