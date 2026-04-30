@@ -95,5 +95,29 @@ export function mockWitnesses(userId: string) {
     vitality: pickInRange(deltaRng, -5, 7),
   };
 
-  return { control, energy, recovery, stress, trends };
+  // Mock signatures (spec §6) — used to apply fixed severity deductions.
+  const sigRng = rngFor(userId, "signatures");
+  const signatures = {
+    control: rollSignatures(sigRng, "control", [
+      { id: "ED8", label: "ED8 Digestion driver" },
+      { id: "ED11", label: "ED11 Liver driver" },
+      { id: "ED13", label: "ED13 Immune driver" },
+    ]),
+    energy: rollSignatures(sigRng, "energy", [
+      { id: "ED3", label: "ED3 Cell driver" },
+      { id: "ED5", label: "ED5 Vascular driver" },
+      { id: "ED7", label: "ED7 Lung driver" },
+    ]),
+    recovery: rollSignatures(sigRng, "recovery", [
+      { id: "ED4", label: "ED4 Nervous system driver" },
+      { id: "EI7", label: "EI7 Restless sleep imprint" },
+    ]),
+    stress: rollSignatures(sigRng, "stress-nervous", [
+      { id: "EI4", label: "EI4 Grief imprint" },
+      { id: "EI10", label: "EI10 Shock imprint" },
+      { id: "ED12", label: "ED12 Adrenal driver" },
+    ]),
+  };
+
+  return { control, energy, recovery, stress, trends, signatures };
 }
