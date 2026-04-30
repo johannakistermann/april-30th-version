@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Scan, Camera, Mic, CircleDot, Heart, Zap, Brain, ChevronRight, ChevronDown } from "lucide-react";
+import { Scan, Camera, Mic, CircleDot, Heart, Zap, Brain, Gauge, ChevronRight, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import ScanProgress from "@/components/ScanProgress";
 
