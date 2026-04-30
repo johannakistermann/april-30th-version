@@ -28,6 +28,21 @@ const DeepScan = () => {
             return 0;
           } else {
             clearInterval(interval);
+            // Record completion of full Weekly Scan
+            const prevLast = localStorage.getItem("lastScanDate");
+            const prevStreak = parseInt(localStorage.getItem("scanStreak") || "0", 10) || 0;
+            const now = new Date();
+            let nextStreak = prevStreak + 1;
+            if (prevLast) {
+              const days = (now.getTime() - new Date(prevLast).getTime()) / (24 * 60 * 60 * 1000);
+              if (days > 14) nextStreak = 1;
+            } else {
+              nextStreak = 1;
+            }
+            localStorage.setItem("lastScanDate", now.toISOString());
+            localStorage.setItem("scanStreak", String(nextStreak));
+            const total = parseInt(localStorage.getItem("scanCount") || "0", 10) || 0;
+            localStorage.setItem("scanCount", String(total + 1));
             setTimeout(() => navigate("/results-loading"), 500);
             return next;
           }
