@@ -19,7 +19,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState<string | null>(null);
   const { isGemConnected } = useGemConnection();
-  const { vitality, pillars, control, bodyState, baselineRemaining } = useVitality();
+  const { vitality, pillars, control, bodyState, baselineRemaining, baseline } = useVitality();
   const vitalityZoneColor = vitality.zone === "green" ? "success" : vitality.zone === "amber" ? "warning" : "destructive";
   const vitalityLabel = getScoreLabel(vitality.score);
 
@@ -175,9 +175,16 @@ const Dashboard = () => {
             <div className={`glass-card p-5 border-${vitalityZoneColor}/30`}>
               <div className="flex items-center justify-between mb-1">
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-medium">Vitality Score</p>
-                <span className={`text-[10px] font-display font-medium px-2 py-0.5 rounded-full bg-${vitalityZoneColor}/15 text-${vitalityZoneColor} capitalize`}>
-                  {vitality.zone} · {vitalityLabel.label}
-                </span>
+                <div className="flex items-center gap-1.5">
+                  {baseline.isEstablishing && (
+                    <span className="text-[10px] font-display font-medium px-2 py-0.5 rounded-full bg-primary/15 text-primary">
+                      {baseline.label}
+                    </span>
+                  )}
+                  <span className={`text-[10px] font-display font-medium px-2 py-0.5 rounded-full bg-${vitalityZoneColor}/15 text-${vitalityZoneColor} capitalize`}>
+                    {vitality.zone} · {vitalityLabel.label}
+                  </span>
+                </div>
               </div>
               <div className="flex items-end gap-3 mb-3">
                 <span className={`text-5xl font-display font-bold text-${vitalityZoneColor} leading-none`}>{vitality.score}</span>
