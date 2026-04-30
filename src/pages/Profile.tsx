@@ -81,18 +81,27 @@ const Profile = () => {
 
       {/* Menu */}
       <div className="px-6 space-y-2">
-        {MENU_ITEMS.map((item) => (
-          <button key={item.label} className="glass-card p-4 w-full flex items-center gap-3 text-left hover:border-primary/20 transition-colors">
-            <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center">
-              <item.icon className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium">{item.label}</p>
-              <p className="text-[10px] text-muted-foreground">{item.desc}</p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
-          </button>
-        ))}
+        {MENU_ITEMS.map((item) => {
+          const onClick = item.label === "Subscription" ? () => navigate("/subscription") : undefined;
+          return (
+            <button
+              key={item.label}
+              onClick={onClick}
+              className="glass-card p-4 w-full flex items-center gap-3 text-left hover:border-primary/20 transition-colors"
+            >
+              <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center">
+                <item.icon className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">{item.label}</p>
+                <p className="text-[10px] text-muted-foreground">
+                  {item.label === "Subscription" ? `Current: ${TIER_LABEL[tier]} · Mock` : item.desc}
+                </p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </button>
+          );
+        })}
       </div>
 
       {/* Role-based navigation */}
