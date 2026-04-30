@@ -8,7 +8,7 @@ import { computeVitality } from "./vitality";
 import { mockWitnesses } from "./mockWitnesses";
 import type { PillarScore, VitalityScore, DailyEnergyPattern } from "./types";
 
-export type { PillarScore, VitalityScore, DailyEnergyPattern, BodyState, SubScore, Confidence, Zone } from "./types";
+export type { PillarScore, VitalityScore, DailyEnergyPattern, BodyState, SubScore, Confidence, Zone, PillarId } from "./types";
 
 interface UseVitalityResult {
   vitality: VitalityScore;
