@@ -213,22 +213,40 @@ const AICoach = () => {
       <div className="sticky bottom-16 z-20 px-4 py-3 border-t border-border/40 bg-card/80 backdrop-blur-xl">
         <form
           onSubmit={(e) => { e.preventDefault(); send(input); }}
-          className="relative flex items-center"
+          className="relative flex items-center gap-2"
         >
           <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask your health coach..."
-            className="w-full bg-muted rounded-xl pl-4 pr-12 py-3 text-sm text-foreground placeholder:text-foreground/50 outline-none focus:ring-1 focus:ring-primary/50"
-            disabled={isLoading}
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,image/*"
+            onChange={handleFileUpload}
+            className="hidden"
           />
           <button
-            type="submit"
-            disabled={!input.trim() || isLoading}
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center text-primary disabled:opacity-30 transition-opacity"
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading || isLoading}
+            title="Upload lab report (PDF or photo)"
+            className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-primary disabled:opacity-30 flex-shrink-0"
           >
-            <Send className="w-4 h-4" />
+            {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Paperclip className="w-4 h-4" />}
           </button>
+          <div className="relative flex-1">
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={labText ? "Ask about your labs…" : "Ask your health coach..."}
+              className="w-full bg-muted rounded-xl pl-4 pr-12 py-3 text-sm text-foreground placeholder:text-foreground/50 outline-none focus:ring-1 focus:ring-primary/50"
+              disabled={isLoading}
+            />
+            <button
+              type="submit"
+              disabled={!input.trim() || isLoading}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center text-primary disabled:opacity-30 transition-opacity"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
         </form>
       </div>
 
