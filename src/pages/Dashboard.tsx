@@ -269,6 +269,11 @@ const Dashboard = () => {
             </div>
           )}
 
+          {/* Weekly Infoceutical Recommendations (P1 mock) */}
+          <div className="px-6 mb-4">
+            <WeeklyRecsCard hasScan={hasScanned} />
+          </div>
+
           {/* Scan Nudge — only if 24h+ since last scan */}
           {showScanNudge && (
             <div className="px-6 mb-4">
