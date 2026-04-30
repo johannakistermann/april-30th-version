@@ -19,6 +19,9 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState<string | null>(null);
   const { isGemConnected } = useGemConnection();
+  const { vitality, pillars, control, bodyState, baselineRemaining } = useVitality();
+  const vitalityZoneColor = vitality.zone === "green" ? "success" : vitality.zone === "amber" ? "warning" : "destructive";
+  const vitalityLabel = getScoreLabel(vitality.score);
 
   const hasScanned = useMemo(() => {
     if (localStorage.getItem("dev-bypass-auth") === "true" && !localStorage.getItem("lastScanDate")) {
