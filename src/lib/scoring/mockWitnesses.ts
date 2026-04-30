@@ -2,6 +2,27 @@
 // Matches the spec's pillar sub-score names exactly. Replace with real witness
 // pipeline in Phase 3.
 import { rngFor, pickInRange } from "./seed";
+import type { Signature, Severity } from "./severity";
+
+const SEVERITY_POOL: Severity[] = ["mild", "mild", "mild", "moderate", "moderate", "severe"];
+
+function rollSignatures(
+  rng: () => number,
+  pillar: Signature["pillarHint"],
+  candidates: { id: string; label: string }[],
+): Signature[] {
+  // Roll 0–2 signatures per pillar deterministically.
+  const count = pickInRange(rng, 0, 2);
+  const picks: Signature[] = [];
+  const pool = [...candidates];
+  for (let i = 0; i < count && pool.length; i++) {
+    const idx = pickInRange(rng, 0, pool.length - 1);
+    const c = pool.splice(idx, 1)[0];
+    const sev = SEVERITY_POOL[pickInRange(rng, 0, SEVERITY_POOL.length - 1)];
+    picks.push({ id: c.id, label: c.label, severity: sev, pillarHint: pillar });
+  }
+  return picks;
+}
 
 export interface ControlWitnesses {
   vitalityConstitution: number;
