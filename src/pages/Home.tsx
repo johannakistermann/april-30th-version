@@ -14,13 +14,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { usePractitionerRole } from "@/hooks/usePractitionerRole";
 import { format, formatDistanceToNow } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-
-const PILLARS = [
-  { id: "control", name: "Control", score: 78, trend: "+3", color: "text-success", bg: "bg-success/10" },
-  { id: "energy", name: "Energy", score: 62, trend: "-2", color: "text-warning", bg: "bg-warning/10" },
-  { id: "recovery", name: "Recovery", score: 55, trend: "+1", color: "text-warning", bg: "bg-warning/10" },
-  { id: "stress-nervous", name: "Stress", score: 71, trend: "+5", color: "text-warning", bg: "bg-warning/10" },
-];
+import { useVitality } from "@/lib/scoring";
+import DailyEnergyStrip from "@/components/scoring/DailyEnergyStrip";
 
 
 const STREAK_DAYS = [
