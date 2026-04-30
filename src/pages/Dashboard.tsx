@@ -8,13 +8,12 @@ import BottomNav from "@/components/BottomNav";
 import RewardsProgress from "@/components/RewardsProgress";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow } from "date-fns";
+import { useVitality } from "@/lib/scoring";
+import DailyEnergyStrip from "@/components/scoring/DailyEnergyStrip";
 
-const PILLARS = [
-  { id: "control", name: "Control", score: 78, zone: "green", trend: "+3", icon: Gauge, color: "text-success", bg: "bg-success/10" },
-  { id: "energy", name: "Energy", score: 62, zone: "amber", trend: "-2", icon: Zap, color: "text-warning", bg: "bg-warning/10" },
-  { id: "recovery", name: "Recovery", score: 55, zone: "amber", trend: "+1", icon: Heart, color: "text-warning", bg: "bg-warning/10" },
-  { id: "stress-nervous", name: "Stress & Nervous System", score: 71, zone: "amber", trend: "+5", icon: Brain, color: "text-warning", bg: "bg-warning/10" },
-];
+const PILLAR_ICON: Record<string, any> = {
+  energy: Zap, recovery: Heart, "stress-nervous": Brain, control: Gauge,
+};
 
 const Dashboard = () => {
   const navigate = useNavigate();
