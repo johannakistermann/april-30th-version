@@ -54,7 +54,7 @@ const BioIdentity = () => {
 
             {/* Branding */}
             <div className="flex items-center gap-2 mt-2 opacity-50">
-              <span className="text-[10px] font-display tracking-wider">THE FIELD</span>
+              <span className="text-[10px] font-display tracking-wider">GEM</span>
               <span className="text-[10px]">by Energy 4 Life</span>
             </div>
           </div>

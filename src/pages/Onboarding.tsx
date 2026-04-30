@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Scan, Camera, Mic, CircleDot, Heart, Zap, Brain, ChevronRight, ChevronDown } from "lucide-react";
+import { Scan, Camera, Mic, CircleDot, Heart, Zap, Brain, Gauge, ChevronRight, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import ScanProgress from "@/components/ScanProgress";
 
@@ -24,8 +24,9 @@ const VALUE_SLIDES = [
 ];
 
 const RESULT_PREVIEWS = [
-  { icon: Zap, label: "Energy & Recovery", desc: "How your body is powering through the day" },
-  { icon: Heart, label: "Organ Health", desc: "Insights into your heart, liver, and vital systems" },
+  { icon: Gauge, label: "Control", desc: "Your bioenergetic drivers and how your system regulates itself" },
+  { icon: Zap, label: "Energy", desc: "How your body powers through the day" },
+  { icon: Heart, label: "Recovery", desc: "How well you're rebuilding between efforts" },
   { icon: Brain, label: "Stress & Nervous System", desc: "Your mental load and stress resilience" },
 ];
 

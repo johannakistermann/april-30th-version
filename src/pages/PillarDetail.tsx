@@ -17,42 +17,52 @@ const PILLAR_DATA: Record<string, {
     confidence: string | null; locked: boolean; message: string | null;
   }>;
 }> = {
-  "energy-recovery": {
-    name: "Energy & Recovery",
-    icon: Zap,
+  "control": {
+    name: "Control",
+    icon: Gauge,
     score: 78,
     trend: "+3",
     zone: "green",
     color: "success",
-    question: "How well is my body generating and recovering energy?",
-    insight: "Your Recovery Capacity jumped 12 points — your biggest improvement this week.",
-    formula: "Energy = (Cellular × 0.25) + (Sleep × 0.30) + (Recovery × 0.15) + (Mito × 0.15) + (Pulse × 0.15)",
+    question: "Which bioenergetic drivers are setting the priorities for your system?",
+    insight: "Your top-ranked Energetic Drivers point to Source and Polarity — foundational regulators are active.",
+    formula: "Control = ranked signature across Energetic Drivers (relative ranking, not absolute score)",
     subScores: [
-      { name: "Cellular Vitality", score: 72, weight: "25%", trend: "up", confidence: "Medium", locked: false, message: "Upload Phase Angle from clinic for sharper reading" },
-      { name: "Sleep Quality", score: 85, weight: "30%", trend: "up", confidence: "High", locked: false, message: null },
-      { name: "Recovery Capacity", score: 68, weight: "15%", trend: "flat", confidence: "Medium", locked: false, message: null },
-      { name: "Mitochondrial Proxy", score: 74, weight: "15%", trend: "up", confidence: "Low", locked: false, message: "Add wearable for continuous insights" },
-      { name: "Pulse Health Index", score: null, weight: "15%", trend: null, confidence: null, locked: true, message: "Connect GEM to unlock pulse quality insights" },
+      { name: "Driver Signature Strength", score: 74, weight: "60%", trend: "up", confidence: "Medium", locked: false, message: "Top 5 drivers identified from voice + tongue + face" },
+      { name: "Integrator Alignment", score: 80, weight: "40%", trend: "up", confidence: "Medium", locked: false, message: "Energetic Integrators tracking with drivers" },
     ],
   },
-  "organs-inflammation": {
-    name: "Organs & Inflammation",
-    icon: Heart,
+  "energy": {
+    name: "Energy",
+    icon: Zap,
     score: 62,
     trend: "-2",
     zone: "amber",
     color: "warning",
-    question: "How are my core organ systems functioning, and is chronic inflammation present?",
-    insight: "Tongue coating density increased — possible digestive heat. Consider cooling foods.",
-    formula: "Organs = (Organ Composite × 0.55) + (Inflammatory × 0.25) + (Elimination × 0.20)",
+    question: "How well is your body generating and using energy day to day?",
+    insight: "Daily Energy Pattern leans toward Recovering — your system is asking for fuel and rest.",
+    formula: "Energy = (Cellular × 0.30) + (Daily Energy Pattern × 0.30) + (Mito Proxy × 0.20) + (Pulse × 0.20)",
     subScores: [
-      { name: "Liver", score: 58, weight: "14%", trend: "down", confidence: "Medium", locked: false, message: "Purple tongue sides + wiry pulse pattern detected" },
-      { name: "Kidney", score: 65, weight: "14%", trend: "flat", confidence: "Medium", locked: false, message: "Pale tongue root, low voice F0 noted" },
-      { name: "Spleen", score: 52, weight: "14%", trend: "down", confidence: "High", locked: false, message: "Thick coating + tooth marks — Spleen Damp pattern" },
-      { name: "Heart", score: 70, weight: "8%", trend: "up", confidence: "Medium", locked: false, message: null },
-      { name: "Lung", score: 68, weight: "5%", trend: "flat", confidence: "Medium", locked: false, message: null },
-      { name: "Inflammatory Load", score: 55, weight: "25%", trend: "down", confidence: "Low", locked: false, message: "Upload hsCRP labs for precision" },
-      { name: "Elimination Capacity", score: 62, weight: "20%", trend: "flat", confidence: "Low", locked: false, message: "Based on Liver + Kidney composite" },
+      { name: "Cellular Vitality", score: 72, weight: "30%", trend: "up", confidence: "Medium", locked: false, message: "Tongue body colour + face tone witnesses" },
+      { name: "Daily Energy Pattern", score: 58, weight: "30%", trend: "down", confidence: "Medium", locked: false, message: "From GEM Body State Engine: Fired Up / Flow / Recovering" },
+      { name: "Mitochondrial Proxy", score: 64, weight: "20%", trend: "flat", confidence: "Low", locked: false, message: "Add wearable for continuous insights" },
+      { name: "Pulse Health Index", score: null, weight: "20%", trend: null, confidence: null, locked: true, message: "Connect GEM to unlock pulse quality insights" },
+    ],
+  },
+  "recovery": {
+    name: "Recovery",
+    icon: Heart,
+    score: 55,
+    trend: "+1",
+    zone: "amber",
+    color: "warning",
+    question: "How well is your body rebuilding and clearing load between efforts?",
+    insight: "Sleep quality strong, but recovery capacity lagging — overnight HRV trending down.",
+    formula: "Recovery = (Sleep × 0.40) + (Recovery Capacity × 0.35) + (Elimination × 0.25)",
+    subScores: [
+      { name: "Sleep Quality", score: 78, weight: "40%", trend: "up", confidence: "High", locked: false, message: null },
+      { name: "Recovery Capacity", score: 48, weight: "35%", trend: "down", confidence: "Medium", locked: false, message: "Voice fatigue markers + face tone" },
+      { name: "Elimination Capacity", score: 50, weight: "25%", trend: "flat", confidence: "Low", locked: false, message: "Tongue coating density witness" },
     ],
   },
   "stress-nervous": {
@@ -62,7 +72,7 @@ const PILLAR_DATA: Record<string, {
     trend: "+5",
     zone: "amber",
     color: "warning",
-    question: "How balanced is my autonomic nervous system, and what's my current stress load?",
+    question: "How balanced is your autonomic nervous system, and what's your current stress load?",
     insight: "Voice stress markers are improving — your breathwork practice is showing results.",
     formula: "Stress = (Autonomic × 0.35) + (Vagal × 0.25) + (Emotional × 0.25) + (HPA × 0.15)",
     subScores: [
@@ -72,36 +82,19 @@ const PILLAR_DATA: Record<string, {
       { name: "HPA Axis Proxy", score: 65, weight: "15%", trend: "flat", confidence: "Low", locked: false, message: "Morning/evening HRV differential needs wearable data" },
     ],
   },
-  "metabolic-cv": {
-    name: "Metabolic & Cardiovascular",
-    icon: Gauge,
-    score: 55,
-    trend: "+1",
-    zone: "amber",
-    color: "warning",
-    question: "How efficiently is my body processing fuel and how healthy is my circulatory system?",
-    insight: "This pillar benefits most from lab data. Upload blood labs to unlock 55% of locked sub-scores.",
-    formula: "MetaCV = (Glycaemic × 0.30) + (Vascular × 0.25) + (Lipid × 0.25) + (CV Fitness × 0.20)",
-    subScores: [
-      { name: "Glycaemic Resilience", score: null, weight: "30%", trend: null, confidence: null, locked: true, message: "Upload fasting glucose, HbA1c, or insulin labs to unlock" },
-      { name: "Vascular Health", score: 58, weight: "25%", trend: "up", confidence: "Low", locked: false, message: "RHR + rPPG only — connect GEM for Pulse Wave Velocity" },
-      { name: "Lipid / Metabolic", score: null, weight: "25%", trend: null, confidence: null, locked: true, message: "Upload cholesterol, LDL, HDL, triglyceride labs to unlock" },
-      { name: "CV Fitness", score: 52, weight: "20%", trend: "flat", confidence: "Medium", locked: false, message: "Based on Breath Count + symptom data" },
-    ],
-  },
 };
 
 const PILLAR_NAV = [
-  { id: "energy-recovery", label: "Energy", icon: Zap },
-  { id: "organs-inflammation", label: "Organs", icon: Heart },
+  { id: "control", label: "Control", icon: Gauge },
+  { id: "energy", label: "Energy", icon: Zap },
+  { id: "recovery", label: "Recovery", icon: Heart },
   { id: "stress-nervous", label: "Stress", icon: Brain },
-  { id: "metabolic-cv", label: "Metabolic", icon: Gauge },
 ];
 
 const PillarDetail = () => {
   const navigate = useNavigate();
   const { pillarId } = useParams<{ pillarId: string }>();
-  const pillar = PILLAR_DATA[pillarId || "energy-recovery"] || PILLAR_DATA["energy-recovery"];
+  const pillar = PILLAR_DATA[pillarId || "control"] || PILLAR_DATA["control"];
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -119,7 +112,7 @@ const PillarDetail = () => {
       {/* Pillar Switcher */}
       <div className="px-6 mb-4 flex gap-2 overflow-x-auto scrollbar-hide">
         {PILLAR_NAV.map((p) => {
-          const isActive = p.id === (pillarId || "energy-recovery");
+          const isActive = p.id === (pillarId || "control");
           const Icon = p.icon;
           return (
             <button

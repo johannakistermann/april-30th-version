@@ -48,7 +48,7 @@ const GuestResults = () => {
         >
           Get Your Full Reading
         </Button>
-        <p className="text-xs text-muted-foreground text-center">Download THE FIELD for complete insights</p>
+        <p className="text-xs text-muted-foreground text-center">Download GEM for complete insights</p>
       </div>
     </div>
   );
