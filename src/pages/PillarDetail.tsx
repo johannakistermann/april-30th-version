@@ -170,6 +170,9 @@ const PillarDetail = () => {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   {sub.locked && <Lock className="w-3.5 h-3.5 text-muted-foreground" />}
+                  {sub.acuteFlag && (
+                    <span title="Acute drop vs trend (>15)" className="w-2 h-2 rounded-full bg-warning animate-pulse" />
+                  )}
                   <span className="text-sm font-medium">{sub.name}</span>
                   <span className="text-[10px] text-muted-foreground">
                     ({sub.locked ? `${baseWeightPct}% locked` : `${weightPct}%`}{redistributed ? ` · base ${baseWeightPct}%` : ""})
