@@ -8,18 +8,20 @@ import BottomNav from "@/components/BottomNav";
 import RewardsProgress from "@/components/RewardsProgress";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow } from "date-fns";
+import { useVitality } from "@/lib/scoring";
+import DailyEnergyStrip from "@/components/scoring/DailyEnergyStrip";
 
-const PILLARS = [
-  { id: "control", name: "Control", score: 78, zone: "green", trend: "+3", icon: Gauge, color: "text-success", bg: "bg-success/10" },
-  { id: "energy", name: "Energy", score: 62, zone: "amber", trend: "-2", icon: Zap, color: "text-warning", bg: "bg-warning/10" },
-  { id: "recovery", name: "Recovery", score: 55, zone: "amber", trend: "+1", icon: Heart, color: "text-warning", bg: "bg-warning/10" },
-  { id: "stress-nervous", name: "Stress & Nervous System", score: 71, zone: "amber", trend: "+5", icon: Brain, color: "text-warning", bg: "bg-warning/10" },
-];
+const PILLAR_ICON: Record<string, any> = {
+  energy: Zap, recovery: Heart, "stress-nervous": Brain, control: Gauge,
+};
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState<string | null>(null);
   const { isGemConnected } = useGemConnection();
+  const { vitality, pillars, control, bodyState, baselineRemaining } = useVitality();
+  const vitalityZoneColor = vitality.zone === "green" ? "success" : vitality.zone === "amber" ? "warning" : "destructive";
+  const vitalityLabel = getScoreLabel(vitality.score);
 
   const hasScanned = useMemo(() => {
     if (localStorage.getItem("dev-bypass-auth") === "true" && !localStorage.getItem("lastScanDate")) {
@@ -168,55 +170,96 @@ const Dashboard = () => {
       {/* === RETURNING USER SECTIONS === */}
       {hasScanned && (
         <>
-          {/* Four Pillars */}
+          {/* Vitality Score hero (spec §9A.4) */}
           <div className="px-6 mb-4">
-            <div className="glass-card p-4 space-y-3">
-              <div className="space-y-0.5">
-                <h2 className="text-sm font-display font-semibold">Four Pillars</h2>
-                <p className="text-[10px] text-muted-foreground font-display">
-                  Scan: {lastScanLabel}
-                  {isGemConnected && (() => {
-                    const gemSync = localStorage.getItem("lastGemSyncDate");
-                    return gemSync
-                      ? ` · GEM readings: ${formatDistanceToNow(new Date(gemSync), { addSuffix: true })}`
-                      : " · GEM readings: none";
-                  })()}
-                </p>
+            <div className={`glass-card p-5 border-${vitalityZoneColor}/30`}>
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-medium">Vitality Score</p>
+                <span className={`text-[10px] font-display font-medium px-2 py-0.5 rounded-full bg-${vitalityZoneColor}/15 text-${vitalityZoneColor} capitalize`}>
+                  {vitality.zone} · {vitalityLabel.label}
+                </span>
+              </div>
+              <div className="flex items-end gap-3 mb-3">
+                <span className={`text-5xl font-display font-bold text-${vitalityZoneColor} leading-none`}>{vitality.score}</span>
+                <div className="pb-1">
+                  <p className="text-[10px] text-muted-foreground font-display">
+                    Voltage <span className="text-foreground font-semibold">{vitality.voltage}</span> × Resistance <span className="text-foreground font-semibold">{vitality.resistanceEfficiency.toFixed(2)}</span>
+                  </p>
+                  <p className="text-[10px] text-muted-foreground font-display">
+                    {baselineRemaining > 0
+                      ? `Scan weekly to establish baseline (${4 - baselineRemaining}/4)`
+                      : `Trend ${vitality.trend} · Confidence ${vitality.confidence}`}
+                  </p>
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                {PILLARS.map((p) => {
-                  const Icon = p.icon;
+              {/* 3 contributors: Energy / Recovery / Stress */}
+              <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border/30">
+                {[pillars.energy, pillars.recovery, pillars.stress].map((p) => {
+                  const Icon = PILLAR_ICON[p.id];
                   const trendUp = p.trend.startsWith("+");
-                  const zoneColor = p.zone === "green" ? "success" : p.zone === "amber" ? "warning" : "destructive";
+                  const c = p.zone === "green" ? "success" : p.zone === "amber" ? "warning" : "destructive";
                   return (
                     <button
                       key={p.id}
                       onClick={() => navigate(`/pillar/${p.id}`)}
-                      className={`glass-card p-3 flex flex-col gap-2 text-left border-${zoneColor}/30 hover:border-${zoneColor}/50 transition-colors`}
+                      className={`glass-card p-3 flex flex-col gap-1.5 text-left border-${c}/20 hover:border-${c}/40 transition-colors active:scale-[0.98]`}
                     >
                       <div className="flex items-center justify-between">
-                        <div className={`w-7 h-7 rounded-lg bg-${zoneColor}/10 flex items-center justify-center`}>
-                          <Icon className={`w-3.5 h-3.5 text-${zoneColor}`} />
+                        <div className={`w-6 h-6 rounded-lg bg-${c}/10 flex items-center justify-center`}>
+                          <Icon className={`w-3 h-3 text-${c}`} />
                         </div>
-                        <span className={`text-[10px] font-display font-medium flex items-center gap-0.5 ${trendUp ? "text-success" : "text-destructive"}`}>
-                          {trendUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                        <span className={`text-[9px] font-display font-medium flex items-center gap-0.5 ${trendUp ? "text-success" : "text-destructive"}`}>
+                          {trendUp ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
                           {p.trend}
                         </span>
                       </div>
-                      <div>
-                        <p className="text-2xl font-display font-bold text-foreground">{p.score}</p>
-                        <p className="text-[10px] text-muted-foreground font-display font-medium leading-tight">{p.name}</p>
-                      </div>
-                      <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                        <div className={`h-full rounded-full bg-${zoneColor}`} style={{ width: `${p.score}%` }} />
-                      </div>
+                      <p className={`text-xl font-display font-bold text-${c}`}>{p.score}</p>
+                      <p className="text-[10px] text-muted-foreground font-display leading-tight">{p.id === "stress-nervous" ? "Stress" : p.name}</p>
                     </button>
                   );
                 })}
               </div>
             </div>
           </div>
+
+          {/* Control tile — separate per spec §9A.4 (excluded from Vitality formula) */}
+          <div className="px-6 mb-4">
+            <button
+              onClick={() => navigate("/pillar/control")}
+              className={`glass-card p-4 w-full text-left border-${control.zone === "green" ? "success" : control.zone === "amber" ? "warning" : "destructive"}/30 hover:border-primary/40 transition-colors active:scale-[0.98]`}
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Gauge className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-display font-medium">This Week's Bioenergetic Priorities</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-display font-semibold">Control</p>
+                    <span className="text-2xl font-display font-bold">{control.score}</span>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <p className="text-[11px] text-muted-foreground">{control.insight}</p>
+            </button>
+          </div>
+
+          {/* Daily Energy Pattern */}
+          {isGemConnected && bodyState.states.length > 0 && (
+            <div className="px-6 mb-4">
+              <div className="glass-card p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-medium">Daily Energy Pattern · 24h</p>
+                  {bodyState.sustainedFiredUp && (
+                    <span className="text-[9px] text-warning font-display font-medium">Sustained Fired Up · −15</span>
+                  )}
+                </div>
+                <DailyEnergyStrip pattern={bodyState} />
+              </div>
+            </div>
+          )}
 
           {/* Scan Nudge — only if 24h+ since last scan */}
           {showScanNudge && (
