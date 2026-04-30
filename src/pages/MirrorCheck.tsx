@@ -146,6 +146,24 @@ const MirrorCheck = () => {
   }
 
   // Go directly into ScanVideoView with the existing stream
+  const recordCompletion = () => {
+    const prevLast = localStorage.getItem("lastScanDate");
+    const prevStreak = parseInt(localStorage.getItem("scanStreak") || "0", 10) || 0;
+    const now = new Date();
+    let nextStreak = prevStreak + 1;
+    if (prevLast) {
+      const days = (now.getTime() - new Date(prevLast).getTime()) / (24 * 60 * 60 * 1000);
+      // Streak resets if more than 14 days since last scan
+      if (days > 14) nextStreak = 1;
+    } else {
+      nextStreak = 1;
+    }
+    localStorage.setItem("lastScanDate", now.toISOString());
+    localStorage.setItem("scanStreak", String(nextStreak));
+    const total = parseInt(localStorage.getItem("scanCount") || "0", 10) || 0;
+    localStorage.setItem("scanCount", String(total + 1));
+  };
+
   if (cameraStream) {
     return (
       <ScanVideoView
@@ -153,8 +171,10 @@ const MirrorCheck = () => {
         isDeepScan={isDeepScan}
         onComplete={() => {
           if (isDeepScan) {
+            // Continue into extended voice tasks; final completion happens in DeepScan
             navigate("/deep-scan", { state: { fromMirrorCheck: true } });
           } else {
+            recordCompletion();
             navigate("/results-loading");
           }
         }}
