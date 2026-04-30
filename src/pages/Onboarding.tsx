@@ -24,8 +24,9 @@ const VALUE_SLIDES = [
 ];
 
 const RESULT_PREVIEWS = [
-  { icon: Zap, label: "Energy & Recovery", desc: "How your body is powering through the day" },
-  { icon: Heart, label: "Organ Health", desc: "Insights into your heart, liver, and vital systems" },
+  { icon: Gauge, label: "Control", desc: "Your bioenergetic drivers and how your system regulates itself" },
+  { icon: Zap, label: "Energy", desc: "How your body powers through the day" },
+  { icon: Heart, label: "Recovery", desc: "How well you're rebuilding between efforts" },
   { icon: Brain, label: "Stress & Nervous System", desc: "Your mental load and stress resilience" },
 ];
 

@@ -57,7 +57,7 @@ const Splash = () => {
             <div className="flex flex-col items-center gap-2">
               <h1 className="text-4xl font-display font-bold tracking-tight">You're in!</h1>
               <p className="text-sm text-muted-foreground">
-                Welcome to <span className="text-primary font-semibold">THE FIELD</span>
+                Welcome to <span className="text-primary font-semibold">GEM</span>
               </p>
             </div>
             <p className="text-muted-foreground text-sm mt-4 animate-pulse">Loading your dashboard...</p>
