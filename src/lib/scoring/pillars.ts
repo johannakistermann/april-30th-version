@@ -1,7 +1,8 @@
-// Spec v5.2 §10–13 — Pillar fusion formulas.
+// Spec v5.2 §10–13 — Pillar fusion formulas with severity (§6) applied.
 import type { PillarScore, SubScore, Confidence, Zone, DailyEnergyPattern } from "./types";
 import { redistributeWeights, fuseScore } from "./redistribution";
 import { mockWitnesses } from "./mockWitnesses";
+import { applySeverity, isAcute } from "./severity";
 
 export function zoneFor(score: number): Zone {
   if (score >= 75) return "green";
@@ -15,8 +16,9 @@ function buildSub(
   name: string,
   score: number | null,
   baseWeight: number,
-  opts: { locked?: boolean; confidence?: Confidence; message?: string; trend?: SubScore["trend"] } = {},
+  opts: { locked?: boolean; confidence?: Confidence; message?: string; trend?: SubScore["trend"]; trendBaseline?: number } = {},
 ): SubScore {
+  const trendBaseline = opts.trendBaseline ?? (score !== null ? score + 5 : 0);
   return {
     name,
     score,
@@ -26,6 +28,7 @@ function buildSub(
     confidence: opts.confidence ?? "Medium",
     message: opts.message,
     trend: opts.trend ?? "flat",
+    acuteFlag: isAcute(score, trendBaseline),
   };
 }
 
@@ -41,22 +44,25 @@ export function buildAllPillars(userId: string, hasGem: boolean, dep: DailyEnerg
     buildSub("Detox & Elimination", w.control.detoxElimination, 0.25, { confidence: "Medium", message: "ED11 / ED12 + face liver line witness" }),
     buildSub("Immunity & Defence", w.control.immunityDefence, 0.20, { confidence: "Medium", message: "ED13 / ED14 + tongue coating witness" }),
   ]);
-  const controlScore = fuseScore(controlSubs);
+  const controlRaw = fuseScore(controlSubs);
+  const controlSev = applySeverity(controlRaw, w.signatures.control);
   const control: PillarScore = {
     id: "control",
     name: "Control",
-    score: controlScore,
-    zone: zoneFor(controlScore),
+    rawScore: controlRaw,
+    score: controlSev.score,
+    zone: zoneFor(controlSev.score),
     trend: fmtTrend(w.trends.control),
     confidence: "Medium",
     question: "Which bioenergetic drivers are setting the priorities for your system this week?",
-    insight: controlScore >= 75
+    insight: controlSev.score >= 75
       ? "Your bioenergetic command layer is steady — drivers are well-coordinated."
-      : controlScore >= 50
+      : controlSev.score >= 50
         ? "Several drivers are flagged — Digestion and Detox lead this week's priorities."
         : "Multiple drivers are distorted — focus on Source-level support and elimination.",
     formula: "Control = (Vitality × 0.25) + (Digestion × 0.30) + (Detox × 0.25) + (Immunity × 0.20)",
     subScores: controlSubs,
+    severityHits: controlSev.hits,
   };
 
   // ---- Energy (spec §11.1–11.2) ----
@@ -74,12 +80,14 @@ export function buildAllPillars(userId: string, hasGem: boolean, dep: DailyEnerg
     buildSub("Movement Capacity", w.energy.movement, 0.15, { confidence: hasGem ? "High" : "Low", message: hasGem ? "GEM accelerometry + ED9" : "ED9 only — connect GEM for active minutes" }),
     buildSub("Respiratory Capacity", w.energy.respiratory, 0.15, { confidence: "Medium", message: "Breath count duration + ED7 (Lung)" }),
   ]);
-  const energyScore = fuseScore(energySubs);
+  const energyRaw = fuseScore(energySubs);
+  const energySev = applySeverity(energyRaw, w.signatures.energy);
   const energy: PillarScore = {
     id: "energy",
     name: "Energy",
-    score: energyScore,
-    zone: zoneFor(energyScore),
+    rawScore: energyRaw,
+    score: energySev.score,
+    zone: zoneFor(energySev.score),
     trend: fmtTrend(w.trends.energy),
     confidence: hasGem ? "High" : "Medium",
     question: "How much functional energy do I have right now to power my day?",
@@ -92,6 +100,7 @@ export function buildAllPillars(userId: string, hasGem: boolean, dep: DailyEnerg
       : "Connect GEM to unlock the Daily Energy Pattern sub-score.",
     formula: "Energy = (Cellular × 0.25) + (Daily Energy Pattern × 0.25) + (Vascular × 0.20) + (Movement × 0.15) + (Respiratory × 0.15)",
     subScores: energySubs,
+    severityHits: energySev.hits,
   };
 
   // ---- Recovery (spec §12.1–12.2) ----
@@ -107,22 +116,25 @@ export function buildAllPillars(userId: string, hasGem: boolean, dep: DailyEnerg
     ),
     buildSub("Mitochondrial Restoration", w.recovery.mitochondrialRestoration, 0.25, { confidence: "Medium", message: "HRV (SDNN) trend + ED3 (Cell) + breath count delta" }),
   ]);
-  const recoveryScore = fuseScore(recoverySubs);
+  const recoveryRaw = fuseScore(recoverySubs);
+  const recoverySev = applySeverity(recoveryRaw, w.signatures.recovery);
   const recovery: PillarScore = {
     id: "recovery",
     name: "Recovery",
-    score: recoveryScore,
-    zone: zoneFor(recoveryScore),
+    rawScore: recoveryRaw,
+    score: recoverySev.score,
+    zone: zoneFor(recoverySev.score),
     trend: fmtTrend(w.trends.recovery),
     confidence: hasGem ? "High" : "Medium",
     question: "How well is my body restoring itself overnight and between exertions?",
-    insight: recoveryScore >= 75
+    insight: recoverySev.score >= 75
       ? "Your overnight restoration is solid — recovery capacity is intact."
-      : recoveryScore >= 50
+      : recoverySev.score >= 50
         ? "Sleep quality is reasonable but recovery depth is lagging."
         : "Restoration is shallow — overnight signals point to under-recovery.",
     formula: "Recovery = (Sleep × 0.45) + (Overnight HRV × 0.30) + (Mito Restoration × 0.25)",
     subScores: recoverySubs,
+    severityHits: recoverySev.hits,
   };
 
   // ---- Stress & Nervous System (spec §13.1–13.2) ----
@@ -132,22 +144,25 @@ export function buildAllPillars(userId: string, hasGem: boolean, dep: DailyEnerg
     buildSub("Emotional Regulation", w.stress.emotionalRegulation, 0.25, { confidence: "Medium", message: "ED4 + ED6 + EI4 (depression/grief) + EI10 (shock)" }),
     buildSub("HPA Axis Proxy", w.stress.hpaAxis, 0.25, { confidence: hasGem ? "High" : "Low", message: hasGem ? "Morning/evening HRV differential + ED12" : "ED12 + face dark under-eye witness" }),
   ]);
-  const stressScore = fuseScore(stressSubs);
+  const stressRaw = fuseScore(stressSubs);
+  const stressSev = applySeverity(stressRaw, w.signatures.stress);
   const stress: PillarScore = {
     id: "stress-nervous",
     name: "Stress & Nervous System",
-    score: stressScore,
-    zone: zoneFor(stressScore),
+    rawScore: stressRaw,
+    score: stressSev.score,
+    zone: zoneFor(stressSev.score),
     trend: fmtTrend(w.trends.stress),
     confidence: hasGem ? "High" : "Medium",
     question: "How balanced is my autonomic nervous system, and what's my current stress load?",
-    insight: stressScore >= 75
+    insight: stressSev.score >= 75
       ? "Autonomic balance is steady — your nervous system has headroom."
-      : stressScore >= 50
+      : stressSev.score >= 50
         ? "Stress load is elevated — vagal tone could use support."
         : "High stress load detected — HPA axis signals depletion.",
     formula: "Stress = (Autonomic × 0.30) + (Vagal × 0.20) + (Emotional × 0.25) + (HPA × 0.25)",
     subScores: stressSubs,
+    severityHits: stressSev.hits,
   };
 
   return { control, energy, recovery, stress };
