@@ -211,7 +211,7 @@ const Home = () => {
               <div className="grid grid-cols-2 gap-1.5">
                 {controlSubs.map((s) => {
                   const sScore = s.score ?? 0;
-                  const sZone = sScore >= 75 ? "success" : sScore >= 50 ? "warning" : "destructive";
+                  const sZone: ZoneToken = sScore >= 75 ? "success" : sScore >= 50 ? "warning" : "destructive";
                   const shortName = s.name
                     .replace("Vitality & Constitution", "Vitality & Const.")
                     .replace("Detox & Elimination", "Detox & Elim.")
@@ -220,7 +220,7 @@ const Home = () => {
                   return (
                     <div key={s.name} className="flex items-center justify-between bg-card rounded-md px-2 py-1.5">
                       <span className="text-[11px] text-foreground/80">{shortName}</span>
-                      <span className={`text-xs font-medium text-${sZone}`}>{s.locked ? "—" : sScore}</span>
+                      <span className={`text-xs font-medium ${ZONE_TEXT[sZone]}`}>{s.locked ? "—" : sScore}</span>
                     </div>
                   );
                 })}
