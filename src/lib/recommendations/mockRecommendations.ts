@@ -26,31 +26,22 @@ const POOL: Omit<WeeklyRec, "confidence" | "witnessSource" | "rationale">[] = [
   { id: "mind", name: "Mind", category: "Imprinter" },
 ];
 
-const RATIONALES: Record<WitnessSource, string[]> = {
-  voice: [
-    "Voice jitter elevated — vagal tone needs support.",
-    "Breath count under 22s — respiratory depletion signature.",
-    "Prosody flattened in extended task — emotional regulation flag.",
-  ],
-  tongue: [
-    "Coating thickness suggests digestive stagnation.",
-    "Pale margins point to Spleen-qi depletion.",
-    "Cracks in centre — yin-fluid deficit pattern.",
-  ],
-  face: [
-    "Liver line + sclera tone flag detox load.",
-    "Dark periorbital area — adrenal proxy elevated.",
-    "Skin tone shift suggests vascular restriction.",
-  ],
-  hrv: [
-    "Overnight RMSSD trending down — recovery deficit.",
-    "LF/HF imbalance — sympathetic dominance signature.",
-    "HR recovery slow post-exertion — vagal tone low.",
-  ],
-};
-
 const SOURCES: WitnessSource[] = ["voice", "tongue", "face", "hrv"];
 const CONFIDENCES: WeeklyRec["confidence"][] = ["High", "High", "Medium", "Medium", "Low"];
+const LABEL: Record<WitnessSource, string> = { voice: "Voice", tongue: "tongue", face: "face", hrv: "HRV" };
+
+function buildRationale(witnesses: WitnessSource[], confidence: WeeklyRec["confidence"]): string {
+  // Capitalize first, lowercase rest, joined with " + "
+  const names = witnesses.map((w, i) =>
+    i === 0 ? LABEL[w].charAt(0).toUpperCase() + LABEL[w].slice(1).toLowerCase() : LABEL[w].toLowerCase()
+  );
+  const list = names.join(" + ");
+  const verb =
+    witnesses.length >= 3 ? "flagged" :
+    witnesses.length === 2 ? "corroborated" :
+    confidence === "High" ? "elevated" : "trending";
+  return `${list} ${verb}`;
+}
 
 export function getWeeklyRecs(userId: string): WeeklyRec[] {
   const rng = rngFor(userId, "recommendations");
@@ -59,10 +50,16 @@ export function getWeeklyRecs(userId: string): WeeklyRec[] {
   for (let i = 0; i < 5 && pool.length; i++) {
     const idx = pickInRange(rng, 0, pool.length - 1);
     const item = pool.splice(idx, 1)[0];
-    const witnessSource = SOURCES[pickInRange(rng, 0, SOURCES.length - 1)];
     const confidence = CONFIDENCES[pickInRange(rng, 0, CONFIDENCES.length - 1)];
-    const rationales = RATIONALES[witnessSource];
-    const rationale = rationales[pickInRange(rng, 0, rationales.length - 1)];
+    // 1-3 witnesses, weighted toward 2
+    const count = [1, 2, 2, 3][pickInRange(rng, 0, 3)];
+    const sources = [...SOURCES];
+    const witnesses: WitnessSource[] = [];
+    for (let j = 0; j < count && sources.length; j++) {
+      witnesses.push(sources.splice(pickInRange(rng, 0, sources.length - 1), 1)[0]);
+    }
+    const witnessSource = witnesses[0];
+    const rationale = buildRationale(witnesses, confidence);
     picks.push({ ...item, witnessSource, confidence, rationale });
   }
   return picks;

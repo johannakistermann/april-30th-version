@@ -96,8 +96,13 @@ const Home = () => {
   const todayLabel = `${format(new Date(), "EEEE")} · Week ${Math.max(1, baselineWeek || 1)}`;
   const firstName = displayName?.split(" ")[0] ?? "there";
 
-  // Sub-scores for "This Week's Bioenergetic Priorities" — top 4 from Control
-  const controlSubs = control.subScores.slice(0, 4);
+  // Sub-scores for "This Week's Bioenergetic Priorities" — fixed display order
+  const PRIORITY_ORDER = ["Detox & Elimination", "Digestion & Metabolism", "Vitality & Constitution", "Immunity & Defence"];
+  const controlSubs = PRIORITY_ORDER
+    .map((n) => control.subScores.find((s) => s.name === n))
+    .filter((s): s is NonNullable<typeof s> => !!s)
+    .concat(control.subScores.filter((s) => !PRIORITY_ORDER.includes(s.name)))
+    .slice(0, 4);
 
   return (
     <div className="min-h-screen bg-background pb-24">
