@@ -119,19 +119,18 @@ const Home = () => {
         <div className="px-5 pb-3 grid grid-cols-2 gap-2">
           <button
             onClick={() => navigate("/dashboard")}
-            className="bg-card/60 border border-border/60 rounded-xl px-3 py-2.5 text-left active:scale-[0.98] transition-transform"
+            className="bg-card/60 border border-border/60 rounded-xl px-3.5 py-3.5 text-left active:scale-[0.98] transition-transform"
           >
-            <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-display">Last Scan</p>
-            <p className="text-xs font-medium mt-0.5">{lastScanLabel}</p>
+            <p className="text-sm font-medium">{lastScanLabel}</p>
           </button>
           <button
             onClick={() => navigate(isGemConnected ? "/gem/detect" : "/shop")}
-            className="bg-card/60 border border-border/60 rounded-xl px-3 py-2.5 text-left active:scale-[0.98] transition-transform"
+            className="bg-card/60 border border-border/60 rounded-xl px-3.5 py-3 text-left active:scale-[0.98] transition-transform"
           >
-            <p className={`text-[9px] uppercase tracking-wider font-display ${isGemConnected ? "text-success" : "text-muted-foreground"}`}>
-              {isGemConnected ? "● GEM Connected" : "GEM"}
+            <p className={`text-[10px] uppercase tracking-wider font-display ${isGemConnected ? "text-success" : "text-muted-foreground"}`}>
+              {isGemConnected ? "CONNECTED" : "GEM"}
             </p>
-            <p className="text-xs font-medium mt-0.5">{isGemConnected ? lastGemLabel : "Get yours"}</p>
+            <p className="text-sm font-medium mt-0.5">{isGemConnected ? lastGemLabel : "Get yours"}</p>
           </button>
         </div>
 
@@ -163,11 +162,11 @@ const Home = () => {
               </div>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-display font-medium">Vitality Score</p>
-              <p className="text-[11px] text-muted-foreground mt-1 leading-snug">Voltage × Resistance Efficiency</p>
+              <p className="text-base font-display font-medium">Vitality Score</p>
+              <p className="text-xs text-muted-foreground mt-1 leading-snug">Voltage × Resistance<br/>Efficiency</p>
               {baseline.isEstablishing ? (
-                <div className="mt-2 px-2.5 py-1.5 rounded-lg bg-primary/15">
-                  <p className="text-[10px] text-primary leading-snug">
+                <div className="mt-2.5 px-2.5 py-2 rounded-lg bg-primary/15">
+                  <p className="text-[11px] text-primary leading-snug">
                     Your baseline locks after 4 weekly scans ({Math.max(1, baselineWeek)} of 4)
                   </p>
                 </div>
@@ -204,16 +203,16 @@ const Home = () => {
               onClick={() => navigate("/pillar/control")}
               className="w-full bg-card/60 border border-border/60 rounded-xl p-3.5 text-left active:scale-[0.98] transition-transform"
             >
-              <div className="flex items-baseline justify-between mb-2">
-                <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-display">This Week's Bioenergetic Priorities</p>
-                <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+              <div className="flex items-start justify-between mb-2 gap-2">
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display leading-tight">This Week's Bioenergetic<br/>Priorities</p>
+                <ChevronRight className="w-3.5 h-3.5 text-muted-foreground mt-0.5 flex-shrink-0" />
               </div>
-              <div className="flex items-baseline gap-2 mb-2.5">
+              <div className="flex items-baseline gap-2 mb-3">
                 <p className="text-base font-display font-medium">Control</p>
                 <p className={`text-base font-display font-medium ${ZONE_TEXT[zoneToken(control.zone)]}`}>· {control.score}</p>
-                <span className={`text-[8px] tracking-wider ${ZONE_TEXT[zoneToken(control.zone)]}`}>{zoneLabel(control.zone)}</span>
+                <span className={`text-[9px] tracking-wider ${ZONE_TEXT[zoneToken(control.zone)]}`}>{zoneLabel(control.zone)}</span>
               </div>
-              <div className="grid grid-cols-2 gap-1.5">
+              <div className="grid grid-cols-2 gap-2">
                 {controlSubs.map((s) => {
                   const sScore = s.score ?? 0;
                   const sZone: ZoneToken = sScore >= 75 ? "success" : sScore >= 50 ? "warning" : "destructive";
@@ -223,9 +222,9 @@ const Home = () => {
                     .replace("Digestion & Metabolism", "Digestion")
                     .replace("Immunity & Defence", "Immunity");
                   return (
-                    <div key={s.name} className="flex items-center justify-between bg-card rounded-md px-2 py-1.5">
-                      <span className="text-[11px] text-foreground/80">{shortName}</span>
-                      <span className={`text-xs font-medium ${ZONE_TEXT[sZone]}`}>{s.locked ? "—" : sScore}</span>
+                    <div key={s.name} className="flex items-center justify-between border border-border/60 rounded-lg px-3 py-2.5">
+                      <span className="text-xs text-foreground/90">{shortName}</span>
+                      <span className={`text-sm font-medium ${ZONE_TEXT[sZone]}`}>{s.locked ? "—" : sScore}</span>
                     </div>
                   );
                 })}
@@ -291,8 +290,8 @@ const Home = () => {
                 <p className="text-[11px] text-foreground/80">Next: Liver Driver</p>
                 <p className="text-[10px] text-muted-foreground mt-0.5">Scheduled 6:30 PM · in 2h</p>
               </div>
-              <span className="bg-success text-success-foreground px-3.5 py-1.5 rounded-lg text-[11px] font-medium">
-                Start now
+              <span className="bg-success text-success-foreground px-4 py-2.5 rounded-lg text-[12px] font-medium leading-tight whitespace-pre-line text-center">
+                {"Start\nnow"}
               </span>
             </div>
           </button>
