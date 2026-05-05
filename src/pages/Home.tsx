@@ -271,15 +271,17 @@ const Home = () => {
           </div>
         )}
 
-        {/* Today's GEM Program */}
+        {/* Today's program — GEM-driven if connected, phone-driven otherwise */}
         <div className="px-5 pb-3">
           <button
-            onClick={() => navigate("/correct")}
+            onClick={() => navigate(isGemConnected ? "/correct" : "/learn")}
             className="w-full text-left rounded-2xl p-3.5 border border-success/30 active:scale-[0.98] transition-transform"
             style={{ background: "linear-gradient(135deg, hsl(var(--success) / 0.15), hsl(var(--success) / 0.05))" }}
           >
             <div className="flex items-baseline justify-between mb-2.5">
-              <p className="text-[13px] font-display font-medium">Today's GEM program</p>
+              <p className="text-[13px] font-display font-medium">
+                {isGemConnected ? "Today's GEM program" : "Today's protocol"}
+              </p>
               <span className="text-[10px] text-success font-medium">2 of 5 done</span>
             </div>
             <div className="h-1 bg-muted rounded-full mb-2.5 overflow-hidden">
@@ -287,13 +289,23 @@ const Home = () => {
             </div>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[11px] text-foreground/80">Next: Liver Driver</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">Scheduled 6:30 PM · in 2h</p>
+                <p className="text-[11px] text-foreground/80">
+                  {isGemConnected ? "Next: Liver Driver" : "Next: 4-min vagal breath"}
+                </p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  {isGemConnected ? "Scheduled 6:30 PM · in 2h" : "Guided · phone only"}
+                </p>
               </div>
               <span className="bg-success text-success-foreground px-4 py-2.5 rounded-lg text-[12px] font-medium leading-tight whitespace-pre-line text-center">
                 {"Start\nnow"}
               </span>
             </div>
+            {!isGemConnected && (
+              <div className="mt-3 pt-2.5 border-t border-success/20 flex items-center justify-between">
+                <p className="text-[10px] text-muted-foreground">Add a GEM for hardware-driven protocols</p>
+                <ChevronRight className="w-3.5 h-3.5 text-success" />
+              </div>
+            )}
           </button>
         </div>
 
