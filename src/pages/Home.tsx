@@ -10,11 +10,23 @@ import { format, formatDistanceToNow } from "date-fns";
 import { useVitality } from "@/lib/scoring";
 import { getWeeklyRecs } from "@/lib/recommendations/mockRecommendations";
 
-const zoneToken = (zone: "green" | "amber" | "red") =>
+type ZoneToken = "success" | "warning" | "destructive";
+const zoneToken = (zone: "green" | "amber" | "red"): ZoneToken =>
   zone === "green" ? "success" : zone === "amber" ? "warning" : "destructive";
 
 const zoneLabel = (zone: "green" | "amber" | "red") =>
   zone === "green" ? "GREEN" : zone === "amber" ? "AMBER" : "RED";
+
+const ZONE_TILE_BG: Record<ZoneToken, string> = {
+  success: "bg-success/10",
+  warning: "bg-warning/10",
+  destructive: "bg-destructive/10",
+};
+const ZONE_TEXT: Record<ZoneToken, string> = {
+  success: "text-success",
+  warning: "text-warning",
+  destructive: "text-destructive",
+};
 
 const Home = () => {
   const navigate = useNavigate();
