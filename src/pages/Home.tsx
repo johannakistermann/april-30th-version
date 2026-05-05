@@ -205,8 +205,8 @@ const Home = () => {
               </div>
               <div className="flex items-baseline gap-2 mb-2.5">
                 <p className="text-base font-display font-medium">Control</p>
-                <p className={`text-base font-display font-medium text-${zoneToken(control.zone)}`}>· {control.score}</p>
-                <span className={`text-[8px] tracking-wider text-${zoneToken(control.zone)}`}>{zoneLabel(control.zone)}</span>
+                <p className={`text-base font-display font-medium ${ZONE_TEXT[zoneToken(control.zone)]}`}>· {control.score}</p>
+                <span className={`text-[8px] tracking-wider ${ZONE_TEXT[zoneToken(control.zone)]}`}>{zoneLabel(control.zone)}</span>
               </div>
               <div className="grid grid-cols-2 gap-1.5">
                 {controlSubs.map((s) => {
