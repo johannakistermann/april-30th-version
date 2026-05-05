@@ -1,31 +1,34 @@
-## Home screen alignment
+## Match Home layout to mockup exactly
 
-The current `src/pages/Home.tsx` already matches the screenshots structurally (greeting, status strip, vitality hero, 3 pillar tiles, Bioenergetic Priorities, Infoceuticals, GEM program, Ask the Coach, weekly streak, Find a practitioner). Two small deltas remain:
+Restructure `src/pages/Home.tsx` cards to mirror the mockup's proportions, hierarchy, and exact wording. No new data sources.
 
-### 1. Bioenergetic Priorities sub-score order
-Screenshot shows: **Detox & Elim. · Digestion · Vitality & Const. · Immunity** (left→right, top→bottom).
-Current code uses `control.subScores.slice(0, 4)` which yields a different order.
+### Specific changes
 
-Fix: pick by name in the explicit order above (fall back to first 4 if any missing).
+**1. Status strip (Last Scan / GEM)**
+- Remove the small "LAST SCAN" caption above the value. Show only the relative time ("17 minutes ago") as the primary `text-sm font-medium` value.
+- Right tile: replace `"● GEM Connected"` with uppercase `"CONNECTED"` (success color, small caps), and show `"Synced 30m ago"` as the bold primary value below.
+- Both tiles taller (`py-3.5`) to match mockup.
 
-### 2. Recommendation rationale style
-Screenshot rationales read like witness corroboration tags:
-- "Voice + tongue + face flagged"
-- "Voice + face corroborated"
+**2. Vitality hero**
+- Two-column layout: ring left (size unchanged), right column contains:
+  - Title `Vitality Score` at `text-base font-display font-medium`.
+  - Subtitle `Voltage × Resistance Efficiency` on two lines, `text-xs text-muted-foreground`.
+  - Primary-tinted info box (`bg-primary/15 rounded-lg p-2.5`) with text `Your baseline locks after 4 weekly scans (X of 4)` — only when `baseline.isEstablishing`.
+- Border stays `border-primary/40`.
 
-Current `mockRecommendations.ts` writes long sentences ("Voice jitter elevated — vagal tone needs support.") and only ever attaches one witness per rec.
+**3. Bioenergetic Priorities card**
+- Header label uppercase `THIS WEEK'S BIOENERGETIC PRIORITIES` at `text-[11px] tracking-wider`, allowed to wrap to two lines.
+- Title row: `Control · 65` + small `AMBER` (zone-coloured) inline.
+- Replace inner 2×2 of solid pill cells with bordered cells (`border border-border/60 rounded-lg px-3 py-2.5`), name left-aligned `text-xs`, score right-aligned in zone color, no background fill.
 
-Fix in `src/lib/recommendations/mockRecommendations.ts`:
-- Pick 1–3 witness sources per rec (deterministic via existing seeded RNG).
-- Build rationale as `"<Witness list> <verb>"` where verb is `flagged | corroborated | elevated | trending` based on count/confidence.
-- Keep `witnessSource` (primary) for backwards compatibility; add `witnesses: WitnessSource[]`.
-- Home only displays `r.rationale`, so no UI change needed beyond the new string shape.
+**4. Infoceuticals list**
+- Keep current structure but increase row padding to `py-3` and rationale to `text-[11px]` to match the mockup's airier spacing.
+- Confidence pill stays as today.
 
-### 3. Keep "Find a practitioner" wording
-Screenshot 2 says "Find an E4L practitioner", but project memory forbids the E4L brand. Keep current "Find a practitioner" copy.
+**5. Today's GEM program**
+- Make the `Start now` CTA a taller two-line button (wrap text on two lines) using `whitespace-pre-line` with content `"Start\nnow"`, padding `px-4 py-2.5`, to match the mockup's stacked button.
 
-### Files to edit
-- `src/pages/Home.tsx` — reorder `controlSubs`.
-- `src/lib/recommendations/mockRecommendations.ts` — multi-witness rationale generator.
+No changes to: greeting, 3 pillar tiles, Ask the Coach card, Weekly streak card, Find a practitioner, or any data hooks.
 
-No backend, no schema, no new routes.
+### File
+- `src/pages/Home.tsx` (only file touched)
