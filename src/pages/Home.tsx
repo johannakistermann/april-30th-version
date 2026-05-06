@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { usePractitionerRole } from "@/hooks/usePractitionerRole";
 import { format, formatDistanceToNow } from "date-fns";
 import { useVitality } from "@/lib/scoring";
+import { useGemSync } from "@/lib/gem/syncClock";
 import { getWeeklyRecs } from "@/lib/recommendations/mockRecommendations";
 
 type ZoneToken = "success" | "warning" | "destructive";
