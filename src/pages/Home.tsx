@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { usePractitionerRole } from "@/hooks/usePractitionerRole";
 import { format, formatDistanceToNow } from "date-fns";
 import { useVitality } from "@/lib/scoring";
+import { useGemSync } from "@/lib/gem/syncClock";
 import { getWeeklyRecs } from "@/lib/recommendations/mockRecommendations";
 
 type ZoneToken = "success" | "warning" | "destructive";
@@ -76,9 +77,7 @@ const Home = () => {
     return "Good evening";
   };
 
-  if (isGemConnected && !localStorage.getItem("lastGemSyncDate")) {
-    localStorage.setItem("lastGemSyncDate", new Date(Date.now() - 30 * 60 * 1000).toISOString());
-  }
+  const { label: gemSyncLabel } = useGemSync();
 
   const { vitality, pillars, control, baselineRemaining, scanCount, baseline } = useVitality();
   const vitalityZoneColor = zoneToken(vitality.zone);
@@ -86,8 +85,6 @@ const Home = () => {
 
   const lastScanRaw = localStorage.getItem("lastScanDate");
   const lastScanLabel = lastScanRaw ? formatDistanceToNow(new Date(lastScanRaw), { addSuffix: true }) : "No scan yet";
-  const lastGemSync = localStorage.getItem("lastGemSyncDate");
-  const lastGemLabel = lastGemSync ? `Synced ${formatDistanceToNow(new Date(lastGemSync), { addSuffix: false })} ago` : "No readings yet";
 
   const recs = getWeeklyRecs(userId);
   const top2 = recs.slice(0, 2);
@@ -130,7 +127,7 @@ const Home = () => {
             <p className={`text-[10px] uppercase tracking-wider font-display ${isGemConnected ? "text-success" : "text-muted-foreground"}`}>
               {isGemConnected ? "CONNECTED" : "GEM"}
             </p>
-            <p className="text-sm font-medium mt-0.5">{isGemConnected ? lastGemLabel : "Get yours"}</p>
+            <p className="text-sm font-medium mt-0.5">{isGemConnected ? gemSyncLabel : "Get yours"}</p>
           </button>
         </div>
 

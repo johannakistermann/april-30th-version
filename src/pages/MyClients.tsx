@@ -8,6 +8,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import TopMenu from "@/components/TopMenu";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "@/hooks/use-toast";
+import { formatGemSyncLabel } from "@/lib/gem/syncClock";
+
+const minutesAgo = (m: number) => new Date(Date.now() - m * 60 * 1000).toISOString();
 
 interface ClientConnection {
   id: string;
@@ -29,10 +32,10 @@ interface Invitation {
 }
 
 const SAMPLE_CLIENTS: ClientConnection[] = [
-  { id: "s1", client_id: "sc1", connected_at: "2026-01-15", status: "active", profiles: { display_name: "Sarah Chen" }, email: "sarah.chen@email.com", last_scan: "2026-03-12", has_gem: true, gem_last_sync: "2026-03-15T09:30:00" },
-  { id: "s2", client_id: "sc2", connected_at: "2026-02-01", status: "active", profiles: { display_name: "Marcus Williams" }, email: "marcus.w@email.com", last_scan: "2026-03-10", has_gem: true, gem_last_sync: "2026-03-14T18:00:00" },
+  { id: "s1", client_id: "sc1", connected_at: "2026-01-15", status: "active", profiles: { display_name: "Sarah Chen" }, email: "sarah.chen@email.com", last_scan: "2026-03-12", has_gem: true, gem_last_sync: minutesAgo(4) },
+  { id: "s2", client_id: "sc2", connected_at: "2026-02-01", status: "active", profiles: { display_name: "Marcus Williams" }, email: "marcus.w@email.com", last_scan: "2026-03-10", has_gem: true, gem_last_sync: minutesAgo(11) },
   { id: "s3", client_id: "sc3", connected_at: "2026-01-20", status: "active", profiles: { display_name: "Elena Rodriguez" }, email: "elena.r@email.com", last_scan: "2026-03-08", has_gem: false },
-  { id: "s4", client_id: "sc4", connected_at: "2026-02-10", status: "active", profiles: { display_name: "James Park" }, email: "james.park@email.com", last_scan: "2026-03-01", has_gem: true, gem_last_sync: "2026-03-10T12:00:00" },
+  { id: "s4", client_id: "sc4", connected_at: "2026-02-10", status: "active", profiles: { display_name: "James Park" }, email: "james.park@email.com", last_scan: "2026-03-01", has_gem: true, gem_last_sync: minutesAgo(60 * 26) },
   { id: "s5", client_id: "sc5", connected_at: "2025-12-05", status: "active", profiles: { display_name: "Aisha Patel" }, email: "aisha.p@email.com", last_scan: "2026-02-25", has_gem: false },
 ];
 
@@ -181,13 +184,15 @@ const MyClients = () => {
                         )}
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <Watch className="w-3 h-3" style={{ color: client.has_gem ? 'hsl(var(--success))' : 'hsl(var(--muted-foreground))' }} />
-                          {client.has_gem ? (
-                            <span className="text-[10px] text-success">
-                              GEM synced {client.gem_last_sync
-                                ? new Date(client.gem_last_sync).toLocaleDateString("en-US", { month: "short", day: "numeric" })
-                                : "—"}
-                            </span>
-                          ) : (
+                          {client.has_gem ? (() => {
+                            const syncDate = client.gem_last_sync ? new Date(client.gem_last_sync) : null;
+                            const online = !!syncDate && Date.now() - syncDate.getTime() < 30 * 60 * 1000;
+                            return (
+                              <span className={`text-[10px] ${online ? "text-success" : "text-muted-foreground"}`}>
+                                {formatGemSyncLabel(syncDate, online)}
+                              </span>
+                            );
+                          })() : (
                             <span className="text-[10px] text-muted-foreground">No GEM</span>
                           )}
                         </div>

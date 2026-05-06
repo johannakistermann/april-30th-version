@@ -6,6 +6,7 @@ import TopMenu from "@/components/TopMenu";
 import BottomNav from "@/components/BottomNav";
 import FractalAnimation from "@/components/FractalAnimation";
 import GemSyncCountdown from "@/components/gem/GemSyncCountdown";
+import { useGemSync } from "@/lib/gem/syncClock";
 
 type Device = "phone" | "gem" | "mihealth" | "lightbed";
 
@@ -70,6 +71,7 @@ const DEVICES: { key: Device; icon: typeof Smartphone; label: string }[] = [
 
 const ProtectHub = () => {
   const navigate = useNavigate();
+  const { label: gemSyncLabel, isGemConnected } = useGemSync();
   const [device, setDevice] = useState<Device>("phone");
   const [selectedProtocols, setSelectedProtocols] = useState<string[]>(
     PROTOCOLS.filter(p => p.recommended).map(p => p.id)
@@ -486,6 +488,11 @@ const ProtectHub = () => {
 
           {/* Play Button */}
           <div className="fixed bottom-20 left-0 right-0 px-6 z-10">
+            {isGemConnected && (
+              <p className="text-[10px] text-muted-foreground text-center mb-1.5">
+                Auto-syncs every 15 min · {gemSyncLabel}
+              </p>
+            )}
             <button
               onClick={handlePlay}
               disabled={!hasSelections}
@@ -496,7 +503,7 @@ const ProtectHub = () => {
               }`}
             >
               <Play className="w-4 h-4" />
-              Sync to GEM device
+              Force sync now
             </button>
           </div>
         </>
