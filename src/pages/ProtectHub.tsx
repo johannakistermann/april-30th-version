@@ -71,6 +71,7 @@ const DEVICES: { key: Device; icon: typeof Smartphone; label: string }[] = [
 
 const ProtectHub = () => {
   const navigate = useNavigate();
+  const { label: gemSyncLabel, isGemConnected } = useGemSync();
   const [device, setDevice] = useState<Device>("phone");
   const [selectedProtocols, setSelectedProtocols] = useState<string[]>(
     PROTOCOLS.filter(p => p.recommended).map(p => p.id)
