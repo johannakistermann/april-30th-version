@@ -160,7 +160,18 @@ const Home = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-base font-display font-medium">Vitality Score</p>
-              <p className="text-xs text-muted-foreground mt-1 leading-snug">Voltage × Resistance<br/>Efficiency</p>
+              <p className="text-xs text-muted-foreground mt-1 leading-snug">Information × Voltage / Resistance</p>
+              {/* I × V / R contribution chips */}
+              <div className="flex items-center gap-1.5 mt-2" aria-hidden="true">
+                <span
+                  className="px-1.5 py-0.5 rounded-md text-[10px] font-display font-semibold"
+                  style={{ background: "hsl(270 60% 70% / 0.15)", color: "hsl(270 60% 70%)" }}
+                >I</span>
+                <span className="text-[10px] text-muted-foreground">×</span>
+                <span className="px-1.5 py-0.5 rounded-md text-[10px] font-display font-semibold bg-success/15 text-success">V</span>
+                <span className="text-[10px] text-muted-foreground">/</span>
+                <span className="px-1.5 py-0.5 rounded-md text-[10px] font-display font-semibold bg-destructive/15 text-destructive">R</span>
+              </div>
               {baseline.isEstablishing ? (
                 <div className="mt-2.5 px-2.5 py-2 rounded-lg bg-primary/15">
                   <p className="text-[11px] text-primary leading-snug">
