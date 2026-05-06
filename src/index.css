@@ -211,11 +211,6 @@
     font-family: 'DM Sans', system-ui, sans-serif;
   }
 
-  /* Borders need explicit alpha syntax since we used slash syntax above */
-  .brand-e4l {
-    --border: 48 8% 10%;
-    --input: 48 8% 10%;
-  }
 }
 
 @layer components {
