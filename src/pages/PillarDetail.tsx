@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Lock, TrendingUp, TrendingDown, Minus, Info, Zap, Heart, Brain, Gauge, AlertTriangle } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
+import ControlPillarDetail from "@/pages/detect/ControlPillarDetail";
 import { useVitality } from "@/lib/scoring";
 import DailyEnergyStrip from "@/components/scoring/DailyEnergyStrip";
 import type { PillarId, PillarScore } from "@/lib/scoring";
@@ -32,6 +33,7 @@ const PillarDetail = () => {
   };
 
   const activeId = (pillarId as PillarId) in allPillars ? (pillarId as PillarId) : "control";
+  if (activeId === "control") return <ControlPillarDetail />;
   const pillar = allPillars[activeId];
   const color = zoneColor(pillar.zone);
   const trendUp = pillar.trend.startsWith("+") && pillar.trend !== "+0";
@@ -46,9 +48,6 @@ const PillarDetail = () => {
         </button>
         <div>
           <h1 className="text-lg font-display font-semibold">{pillar.name}</h1>
-          {activeId === "control" && (
-            <p className="text-[10px] text-primary font-display">Bioenergetic priorities — not in Vitality formula</p>
-          )}
         </div>
       </div>
 
@@ -178,6 +177,12 @@ const PillarDetail = () => {
                   <span className="text-[10px] text-muted-foreground">
                     ({sub.locked ? `${baseWeightPct}% locked` : `${weightPct}%`}{redistributed ? ` · base ${baseWeightPct}%` : ""})
                   </span>
+                  {activeId === "recovery" && (() => {
+                    const n = sub.name.toLowerCase();
+                    if (/hrv/.test(n)) return <span className="px-1.5 py-0.5 rounded-md text-[9px] font-display font-semibold bg-destructive/15 text-destructive">→ Resistance</span>;
+                    if (/sleep|mitoc/.test(n)) return <span className="px-1.5 py-0.5 rounded-md text-[9px] font-display font-semibold bg-success/15 text-success">→ Voltage</span>;
+                    return null;
+                  })()}
                 </div>
                 {sub.score !== null ? (
                   <div className="flex items-center gap-1.5">
