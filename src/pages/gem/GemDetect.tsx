@@ -21,7 +21,7 @@ const GemDetect = () => {
         </button>
         <div>
           <h1 className="text-lg font-display font-semibold">Detect</h1>
-          <p className="text-[10px] text-muted-foreground">GEM · Last reading: 2h ago</p>
+          <p className="text-[10px] text-muted-foreground">GEM · {gemSyncLabel}</p>
         </div>
       </div>
 
