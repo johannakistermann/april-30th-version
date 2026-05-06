@@ -33,6 +33,7 @@ const PillarDetail = () => {
   };
 
   const activeId = (pillarId as PillarId) in allPillars ? (pillarId as PillarId) : "control";
+  if (activeId === "control") return <ControlPillarDetail />;
   const pillar = allPillars[activeId];
   const color = zoneColor(pillar.zone);
   const trendUp = pillar.trend.startsWith("+") && pillar.trend !== "+0";
