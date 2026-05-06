@@ -8,6 +8,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import TopMenu from "@/components/TopMenu";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "@/hooks/use-toast";
+import { formatGemSyncLabel } from "@/lib/gem/syncClock";
+
+const minutesAgo = (m: number) => new Date(Date.now() - m * 60 * 1000).toISOString();
 
 interface ClientConnection {
   id: string;
