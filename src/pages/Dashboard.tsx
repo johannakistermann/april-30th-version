@@ -1,355 +1,293 @@
-import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Scan, Activity, TrendingDown, TrendingUp, ChevronRight, Zap, Brain, Heart, Gauge, Bluetooth, BluetoothOff, CalendarClock, Sparkles, ExternalLink } from "lucide-react";
-import { useGemConnection } from "@/contexts/GemConnectionContext";
-import { getScoreLabel } from "@/components/ScoreBadge";
+import {
+  ChevronRight,
+  Scan,
+  Zap,
+  Heart,
+  Brain,
+  Gauge,
+  LineChart,
+  History,
+  LayoutGrid,
+  AlertTriangle,
+  GraduationCap,
+  MessageCircle,
+} from "lucide-react";
 import TopMenu from "@/components/TopMenu";
 import BottomNav from "@/components/BottomNav";
-import RewardsProgress from "@/components/RewardsProgress";
-import { supabase } from "@/integrations/supabase/client";
-import { formatDistanceToNow } from "date-fns";
-import { useVitality } from "@/lib/scoring";
-import DailyEnergyStrip from "@/components/scoring/DailyEnergyStrip";
-import WeeklyRecsCard from "@/components/recommendations/WeeklyRecsCard";
 
-const PILLAR_ICON: Record<string, any> = {
-  energy: Zap, recovery: Heart, "stress-nervous": Brain, control: Gauge,
-};
+type Zone = "success" | "warning" | "destructive";
+
+const PILLARS: {
+  id: string;
+  name: string;
+  score: number;
+  zone: Zone;
+  spark: number[];
+  route: string;
+}[] = [
+  { id: "energy", name: "Energy", score: 75, zone: "success", spark: [55, 58, 62, 66, 70, 75], route: "/detect/pillar/energy" },
+  { id: "recovery", name: "Recovery", score: 70, zone: "warning", spark: [60, 65, 72, 76, 73, 70], route: "/detect/pillar/recovery" },
+  { id: "stress-nervous", name: "Stress & NS", score: 65, zone: "warning", spark: [50, 52, 55, 58, 62, 65], route: "/detect/pillar/stress-nervous" },
+  { id: "control", name: "Control", score: 68, zone: "warning", spark: [60, 64, 70, 73, 71, 68], route: "/detect/pillar/control" },
+];
+
+function Sparkline({ values, zone }: { values: number[]; zone: Zone }) {
+  const w = 80;
+  const h = 24;
+  const max = Math.max(...values);
+  const min = Math.min(...values);
+  const range = Math.max(1, max - min);
+  const pts = values
+    .map((v, i) => `${(i / (values.length - 1)) * w},${h - ((v - min) / range) * h}`)
+    .join(" ");
+  return (
+    <svg width={w} height={h} className="overflow-visible">
+      <polyline
+        fill="none"
+        stroke={`hsl(var(--${zone}))`}
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        points={pts}
+      />
+    </svg>
+  );
+}
+
+function ActionPill({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center gap-0.5 text-[11px] font-display font-medium text-primary bg-primary/10 rounded-full px-2.5 py-1">
+      {label}
+      <ChevronRight className="w-3 h-3" />
+    </span>
+  );
+}
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [displayName, setDisplayName] = useState<string | null>(null);
-  const { isGemConnected } = useGemConnection();
-  const { vitality, pillars, control, bodyState, baselineRemaining, baseline } = useVitality();
-  const vitalityZoneColor = vitality.zone === "green" ? "success" : vitality.zone === "amber" ? "warning" : "destructive";
-  const vitalityLabel = getScoreLabel(vitality.score);
-
-  const hasScanned = useMemo(() => {
-    if (localStorage.getItem("dev-bypass-auth") === "true" && !localStorage.getItem("lastScanDate")) {
-      localStorage.setItem("lastScanDate", new Date().toISOString());
-    }
-    return !!localStorage.getItem("lastScanDate");
-  }, []);
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data } = await supabase
-          .from("profiles")
-          .select("display_name")
-          .eq("user_id", user.id)
-          .single();
-        if (data?.display_name) setDisplayName(data.display_name);
-      }
-    };
-    fetchProfile();
-  }, []);
-
-  
-
-  const showScanNudge = useMemo(() => {
-    const last = localStorage.getItem("lastScanDate");
-    if (!last) return false;
-    const diffMs = Date.now() - new Date(last).getTime();
-    return diffMs > 24 * 60 * 60 * 1000;
-  }, []);
-
-  const lastScanLabel = useMemo(() => {
-    const last = localStorage.getItem("lastScanDate");
-    if (!last) return "No scan yet";
-    return formatDistanceToNow(new Date(last), { addSuffix: true });
-  }, []);
 
   return (
     <div className="min-h-screen bg-background pb-24">
       <TopMenu />
 
-
-      {/* GEM Connection Status */}
-      <div className="px-6 mb-3">
-        {isGemConnected ? (
-          <div className="glass-card p-3 w-full flex items-center gap-3 text-left border-success/30">
-            <div className="w-8 h-8 rounded-xl bg-success/10 flex items-center justify-center flex-shrink-0">
-              <Bluetooth className="w-4 h-4 text-success" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-medium">GEM Connected</p>
-                <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-              </div>
-              {(() => {
-                const lastSync = localStorage.getItem("lastGemSyncDate");
-                if (!lastSync) return <p className="text-[11px] text-success/70 font-display font-medium">No readings yet</p>;
-                return <p className="text-[11px] text-success font-display font-semibold">Last reading: {formatDistanceToNow(new Date(lastSync), { addSuffix: false })} ago</p>;
-              })()}
-            </div>
-          </div>
-        ) : (
-          <div className="glass-card p-3 w-full border-dashed opacity-80">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 rounded-xl bg-muted/50 flex items-center justify-center flex-shrink-0">
-                <BluetoothOff className="w-4 h-4 text-muted-foreground" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-medium">GEM</p>
-                <p className="text-[11px] text-muted-foreground font-display font-medium">Not connected</p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => window.open("https://shop.e4l.com", "_blank")}
-                className="flex-1 flex items-center justify-center gap-1.5 text-[11px] font-display font-medium text-primary bg-primary/10 rounded-xl py-2 px-3 transition-colors hover:bg-primary/20 active:scale-[0.98]"
-              >
-                <ExternalLink className="w-3 h-3" />
-                Get Yours
-              </button>
-              <button
-                onClick={() => navigate("/gem/detect")}
-                className="flex-1 flex items-center justify-center gap-1.5 text-[11px] font-display font-medium text-primary bg-primary/10 rounded-xl py-2 px-3 transition-colors hover:bg-primary/20 active:scale-[0.98]"
-              >
-                <Bluetooth className="w-3 h-3" />
-                Pair GEM
-              </button>
-            </div>
-          </div>
-        )}
+      {/* Header */}
+      <div className="px-6 pt-6 pb-4">
+        <h1 className="text-2xl font-display font-bold">Detect</h1>
+        <p className="text-sm text-muted-foreground mt-1">Tap any card below to dig in</p>
       </div>
 
-      {/* GEM State Card */}
-      <div className="px-6 mb-3">
+      {/* Section 1 — Next scan */}
+      <div className="px-6 mb-5">
+        <div className="glass-card p-5">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-medium">
+            Next scan in 4 days
+          </p>
+          <p className="text-lg font-display font-semibold mt-1">Sunday, 10 May</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Last scanned 17 minutes ago</p>
+          <button
+            onClick={() => navigate("/scan")}
+            className="mt-3 w-full bg-primary text-primary-foreground font-display font-medium text-sm py-3 rounded-xl hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          >
+            <Scan className="w-4 h-4" />
+            Start scan
+          </button>
+        </div>
+      </div>
+
+      {/* Section 2 — Latest scan hero */}
+      <div className="px-6 mb-5">
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-medium mb-2">
+          Your latest scan
+        </p>
         <button
-          onClick={() => navigate("/gem/detect")}
-          className="glass-card p-4 w-full text-left hover:border-primary/20 transition-colors active:scale-[0.98]"
+          role="button"
+          tabIndex={0}
+          aria-label="Your latest scan, Vitality 62 Amber, opens full scan detail"
+          onClick={() => navigate("/detect/latest")}
+          className="glass-card p-5 w-full text-left border-primary/40 glow-primary relative active:scale-[0.98] transition-all"
         >
-          <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${isGemConnected ? 'bg-success/15' : 'bg-muted/30'}`}>
-              {isGemConnected
-                ? <Bluetooth className="w-6 h-6 text-success" />
-                : <BluetoothOff className="w-6 h-6 text-muted-foreground" />}
+          <span className="absolute top-3 right-3 text-[9px] font-display font-bold tracking-wider text-primary bg-primary/15 px-2 py-1 rounded-full">
+            TAP TO OPEN
+          </span>
+
+          <div className="flex items-center gap-5">
+            {/* Vitality gauge */}
+            <div className="relative w-20 h-20 flex-shrink-0">
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="42" fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="42"
+                  fill="none"
+                  stroke="hsl(var(--warning))"
+                  strokeWidth="6"
+                  strokeLinecap="round"
+                  strokeDasharray={`${2 * Math.PI * 42}`}
+                  strokeDashoffset={`${2 * Math.PI * 42 * (1 - 0.62)}`}
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-2xl font-display font-bold text-warning leading-none">62</span>
+                <span className="text-[9px] text-warning font-display">Amber</span>
+              </div>
             </div>
-            <div className="flex-1">
-              <p className="text-sm font-display font-semibold">GEM State</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {isGemConnected
-                  ? `Calm · synced ${localStorage.getItem("lastGemSyncDate")
-                      ? `${formatDistanceToNow(new Date(localStorage.getItem("lastGemSyncDate")!), { addSuffix: false })} ago`
-                      : "just now"}`
-                  : "Not connected"}
-              </p>
-              <p className="text-[11px] text-muted-foreground mt-1">Tap for full details</p>
+
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] text-muted-foreground font-display">Week 6 · Sunday</p>
+              <p className="text-sm font-display font-semibold mt-0.5">Vitality Score</p>
+              <p className="text-xs text-success font-display font-medium mt-0.5">▲ +5 vs last week</p>
             </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </div>
+
+          <p className="text-xs text-foreground/90 mt-4 leading-relaxed">
+            <span className="font-display font-bold">Notable shift:</span> Recovery dipped 3 points · top rec changed Liver → Kidney
+          </p>
+
+          <div className="mt-3 pt-3 border-t border-border/40 flex flex-wrap items-center gap-1.5">
+            <span className="text-[10px] text-muted-foreground">Opens</span>
+            {["capture quality", "all 5 recs", "retakes"].map((c) => (
+              <span key={c} className="text-[10px] bg-muted/40 text-foreground/80 px-2 py-0.5 rounded-full font-display">
+                {c}
+              </span>
+            ))}
           </div>
         </button>
       </div>
 
-      {/* === FIRST-TIME EMPTY STATE === */}
-      {!hasScanned && (
-        <div className="px-6 mb-6">
-          <div className="glass-card p-8 flex flex-col items-center text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-              <Sparkles className="w-8 h-8 text-primary" />
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-lg font-display font-bold">Take Your First Scan</h2>
-              <p className="text-sm text-muted-foreground max-w-xs">
-                A 60-second face, voice & tongue scan gives you personalised health insights across four pillars.
-              </p>
-            </div>
-            <button
-              onClick={() => navigate("/mirror-check")}
-              className="bg-primary text-primary-foreground font-display font-medium text-sm px-6 py-3 rounded-2xl hover:bg-primary/90 transition-colors"
-            >
-              <Scan className="w-4 h-4 inline mr-2" />
-              Start Scanning
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* === RETURNING USER SECTIONS === */}
-      {hasScanned && (
-        <>
-          {/* Vitality Score hero (spec §9A.4) */}
-          <div className="px-6 mb-4">
-            <div className={`glass-card p-5 border-${vitalityZoneColor}/30`}>
-              <div className="flex items-center justify-between mb-1">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-medium">Vitality Score</p>
-                <div className="flex items-center gap-1.5">
-                  {baseline.isEstablishing && (
-                    <span className="text-[10px] font-display font-medium px-2 py-0.5 rounded-full bg-primary/15 text-primary">
-                      {baseline.label}
-                    </span>
-                  )}
-                  <span className={`text-[10px] font-display font-medium px-2 py-0.5 rounded-full bg-${vitalityZoneColor}/15 text-${vitalityZoneColor} capitalize`}>
-                    {vitality.zone} · {vitalityLabel.label}
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-end gap-3 mb-3">
-                <span className={`text-5xl font-display font-bold text-${vitalityZoneColor} leading-none`}>{vitality.score}</span>
-                <div className="pb-1">
-                  <p className="text-[10px] text-muted-foreground font-display">
-                    Voltage <span className="text-foreground font-semibold">{vitality.voltage}</span> × Resistance <span className="text-foreground font-semibold">{vitality.resistanceEfficiency.toFixed(2)}</span>
-                  </p>
-                  <p className="text-[10px] text-muted-foreground font-display">
-                    {baselineRemaining > 0
-                      ? `Scan weekly to establish baseline (${4 - baselineRemaining}/4)`
-                      : `Trend ${vitality.trend} · Confidence ${vitality.confidence}`}
-                  </p>
-                </div>
-              </div>
-
-              {/* 3 contributors: Energy / Recovery / Stress */}
-              <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border/30">
-                {[pillars.energy, pillars.recovery, pillars.stress].map((p) => {
-                  const Icon = PILLAR_ICON[p.id];
-                  const trendUp = p.trend.startsWith("+");
-                  const c = p.zone === "green" ? "success" : p.zone === "amber" ? "warning" : "destructive";
-                  return (
-                    <button
-                      key={p.id}
-                      onClick={() => navigate(`/pillar/${p.id}`)}
-                      className={`glass-card p-3 flex flex-col gap-1.5 text-left border-${c}/20 hover:border-${c}/40 transition-colors active:scale-[0.98]`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className={`w-6 h-6 rounded-lg bg-${c}/10 flex items-center justify-center`}>
-                          <Icon className={`w-3 h-3 text-${c}`} />
-                        </div>
-                        <span className={`text-[9px] font-display font-medium flex items-center gap-0.5 ${trendUp ? "text-success" : "text-destructive"}`}>
-                          {trendUp ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
-                          {p.trend}
-                        </span>
-                      </div>
-                      <p className={`text-xl font-display font-bold text-${c}`}>{p.score}</p>
-                      <p className="text-[10px] text-muted-foreground font-display leading-tight">{p.id === "stress-nervous" ? "Stress" : p.name}</p>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Control tile — separate per spec §9A.4 (excluded from Vitality formula) */}
-          <div className="px-6 mb-4">
-            <button
-              onClick={() => navigate("/pillar/control")}
-              className={`glass-card p-4 w-full text-left border-${control.zone === "green" ? "success" : control.zone === "amber" ? "warning" : "destructive"}/30 hover:border-primary/40 transition-colors active:scale-[0.98]`}
-            >
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Gauge className="w-5 h-5 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-display font-medium">This Week's Bioenergetic Priorities</p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-display font-semibold">Control</p>
-                    <span className="text-2xl font-display font-bold">{control.score}</span>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </div>
-              <p className="text-[11px] text-muted-foreground">{control.insight}</p>
-            </button>
-          </div>
-
-          {/* Daily Energy Pattern */}
-          {isGemConnected && bodyState.states.length > 0 && (
-            <div className="px-6 mb-4">
-              <div className="glass-card p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-medium">Daily Energy Pattern · 24h</p>
-                  {bodyState.sustainedFiredUp && (
-                    <span className="text-[9px] text-warning font-display font-medium">Sustained Fired Up · −15</span>
-                  )}
-                </div>
-                <DailyEnergyStrip pattern={bodyState} />
-              </div>
-            </div>
-          )}
-
-          {/* Weekly Infoceutical Recommendations (P1 mock) */}
-          <div className="px-6 mb-4">
-            <WeeklyRecsCard hasScan={hasScanned} />
-          </div>
-
-          {/* Scan Nudge — only if 24h+ since last scan */}
-          {showScanNudge && (
-            <div className="px-6 mb-4">
+      {/* Section 3 — Explore by pillar */}
+      <div className="px-6 mb-5">
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-medium">
+          Explore by pillar
+        </p>
+        <p className="text-xs text-muted-foreground mt-1 mb-3">
+          Tap any pillar for trends, witnesses, related recs ›
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          {PILLARS.map((p) => {
+            const Icon = p.id === "energy" ? Zap : p.id === "recovery" ? Heart : p.id === "stress-nervous" ? Brain : Gauge;
+            return (
               <button
-                onClick={() => navigate("/scan")}
-                className="glass-card p-3 w-full flex items-center gap-3 text-left border-primary/20 hover:border-primary/40 transition-colors"
+                key={p.id}
+                role="button"
+                tabIndex={0}
+                aria-label={`${p.name} pillar, score ${p.score} ${p.zone === "success" ? "Green" : "Amber"}, opens ${p.name} detail`}
+                onClick={() => navigate(p.route)}
+                className={`glass-card p-4 text-left border-${p.zone}/20 hover:border-${p.zone}/40 active:scale-[0.98] transition-all relative`}
               >
-                <div className="w-7 h-7 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <CalendarClock className="w-3.5 h-3.5 text-primary" />
+                <ChevronRight className="w-4 h-4 text-muted-foreground absolute top-3 right-3" />
+                <div className={`w-7 h-7 rounded-lg bg-${p.zone}/10 flex items-center justify-center mb-2`}>
+                  <Icon className={`w-3.5 h-3.5 text-${p.zone}`} />
                 </div>
-                <div className="flex-1">
-                  <p className="text-xs font-display font-semibold">Scan Today?</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">It's been a while — time for a quick check-in?</p>
+                <p className="text-xs font-display font-medium text-muted-foreground">{p.name}</p>
+                <p className={`text-2xl font-display font-bold text-${p.zone} mt-0.5`}>{p.score}</p>
+                <div className="mt-2">
+                  <Sparkline values={p.spark} zone={p.zone} />
                 </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
               </button>
-            </div>
-          )}
+            );
+          })}
+        </div>
+      </div>
 
-          {/* Bio Age Delta */}
-          <div className="px-6 mb-4">
-            <div className="glass-card p-5 glow-primary relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-              <div className="relative z-10 flex items-center gap-5">
-                <div className="relative w-20 h-20 flex-shrink-0">
-                  <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="42" fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
-                    <circle cx="50" cy="50" r="42" fill="none" stroke="hsl(var(--success))" strokeWidth="6" strokeLinecap="round"
-                      strokeDasharray={`${2 * Math.PI * 42}`}
-                      strokeDashoffset={`${2 * Math.PI * 42 * 0.32}`}
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-xl font-display font-bold text-success">-3.2</span>
-                    <span className="text-[9px] text-muted-foreground">years</span>
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <span className="text-[10px] bg-success/20 text-success px-2 py-0.5 rounded-full font-display font-medium">
-                    ⏳ Time Traveler
-                  </span>
-                  <p className="text-xs text-foreground font-medium leading-snug">
-                    You're <span className="text-success font-bold">3.2 years younger</span> than your chronological age
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">Confidence: Medium</p>
-                </div>
+      {/* Section 4 — Explore over time */}
+      <div className="px-6 mb-5">
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-medium mb-3">
+          Explore over time
+        </p>
+        <div className="space-y-2">
+          {[
+            { icon: LineChart, title: "Trends", subtitle: "Vitality + 4 pillar lines · 6 weeks", route: "/detect/trends" },
+            { icon: History, title: "Scan history", subtitle: "All 6 scans · diff view · acute flags", route: "/detect/history" },
+            { icon: LayoutGrid, title: "Recommendation archive", subtitle: "What you've been recommended · why", route: "/detect/recs" },
+          ].map((row) => (
+            <button
+              key={row.title}
+              role="button"
+              tabIndex={0}
+              aria-label={`${row.title}, opens ${row.title} screen`}
+              onClick={() => navigate(row.route)}
+              className="glass-card p-4 w-full flex items-center gap-3 text-left hover:border-primary/30 active:scale-[0.98] transition-all"
+            >
+              <div className="w-10 h-10 rounded-xl bg-muted/40 flex items-center justify-center flex-shrink-0">
+                <row.icon className="w-4 h-4 text-foreground/80" />
               </div>
-            </div>
-          </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-display font-semibold">{row.title}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{row.subtitle}</p>
+              </div>
+              <ActionPill label="Open" />
+            </button>
+          ))}
+        </div>
+      </div>
 
-          {/* Truth Detector Card */}
-          <div className="px-6 mb-4">
-            <div className="glass-card p-4 border-warning/20 flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-warning/10 flex items-center justify-center flex-shrink-0">
-                <Activity className="w-4 h-4 text-warning" />
-              </div>
-              <div className="flex-1">
-                <p className="text-xs font-display font-semibold text-warning">Truth Detector</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  You said you slept well, but your HRV says otherwise. Recovery score adjusted.
-                </p>
-                <button
-                  onClick={() => navigate("/ai-coach", { state: { preload: "My HRV suggests poor sleep even though I feel rested. What should I do?" } })}
-                  className="text-[10px] text-primary font-display font-medium mt-1.5 hover:underline"
-                >
-                  What should I do? →
-                </button>
-              </div>
+      {/* Section 5 — Capture quality */}
+      <div className="px-6 mb-5">
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-medium mb-3">
+          Capture quality
+        </p>
+        <div className="space-y-2">
+          <button
+            role="button"
+            tabIndex={0}
+            aria-label="Last capture has 1 warning, tongue lighting flagged, opens retake flow"
+            onClick={() => navigate("/detect/capture/tongue-retake")}
+            className="glass-card p-4 w-full flex items-center gap-3 text-left border-warning/40 hover:border-warning/60 active:scale-[0.98] transition-all"
+          >
+            <div className="w-10 h-10 rounded-xl bg-warning/15 flex items-center justify-center flex-shrink-0">
+              <AlertTriangle className="w-4 h-4 text-warning" />
             </div>
-          </div>
-        </>
-      )}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-display font-semibold">Last capture</p>
+                <span className="text-[9px] font-display font-bold tracking-wider text-warning bg-warning/15 px-1.5 py-0.5 rounded-full">
+                  1 WARN
+                </span>
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Tongue lighting flagged · retake or improve</p>
+            </div>
+            <span className="inline-flex items-center gap-0.5 text-[11px] font-display font-medium text-warning bg-warning/15 rounded-full px-2.5 py-1">
+              Fix
+              <ChevronRight className="w-3 h-3" />
+            </span>
+          </button>
 
-      {/* Rewards Progress */}
+          <button
+            role="button"
+            tabIndex={0}
+            aria-label="Practice and tutorials, opens tutorials screen"
+            onClick={() => navigate("/detect/practice")}
+            className="glass-card p-4 w-full flex items-center gap-3 text-left hover:border-primary/30 active:scale-[0.98] transition-all"
+          >
+            <div className="w-10 h-10 rounded-xl bg-muted/40 flex items-center justify-center flex-shrink-0">
+              <GraduationCap className="w-4 h-4 text-foreground/80" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-display font-semibold">Practice & tutorials</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">Get cleaner captures · 5 modality guides</p>
+            </div>
+            <ActionPill label="Open" />
+          </button>
+        </div>
+      </div>
+
+      {/* Section 6 — Coach prompt */}
       <div className="px-6 mb-6">
-        <RewardsProgress />
+        <button
+          role="button"
+          tabIndex={0}
+          aria-label="Ask Coach about any of the above, opens AI Coach"
+          onClick={() => navigate("/ai-coach")}
+          className="w-full p-3 rounded-2xl border border-primary/20 bg-primary/5 flex items-center gap-3 text-left hover:bg-primary/10 active:scale-[0.98] transition-all"
+        >
+          <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
+            <MessageCircle className="w-4 h-4 text-primary" />
+          </div>
+          <p className="flex-1 text-xs font-display font-medium">Ask Coach about any of the above</p>
+          <ActionPill label="Ask" />
+        </button>
       </div>
 
       <BottomNav />
