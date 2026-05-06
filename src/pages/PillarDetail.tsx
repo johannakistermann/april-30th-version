@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Lock, TrendingUp, TrendingDown, Minus, Info, Zap, Heart, Brain, Gauge, AlertTriangle } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
+import ControlPillarDetail from "@/pages/detect/ControlPillarDetail";
 import { useVitality } from "@/lib/scoring";
 import DailyEnergyStrip from "@/components/scoring/DailyEnergyStrip";
 import type { PillarId, PillarScore } from "@/lib/scoring";
