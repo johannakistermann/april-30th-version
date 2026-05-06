@@ -31,6 +31,7 @@ const Learn = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <TopMenu />
+      <div className="w-full max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-4xl mx-auto">
       <div className="px-6 pt-12 pb-4 flex items-center gap-3">
         <button onClick={() => navigate(-1)} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
           <ArrowLeft className="w-4 h-4" />
