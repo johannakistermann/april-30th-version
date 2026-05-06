@@ -1,69 +1,93 @@
-# Detect Hub redesign (/dashboard)
 
-Replace the current `/dashboard` content with a navigation-first hub. Every card is tappable, follows existing design system (`glass-card`, zone colors `success/warning/destructive`, `active:scale-[0.98]` press state, font-display, lucide-react icons). Uses dummy data — no backend wiring.
+# Detect > Latest Scan screen
 
-## 1. Rewrite `src/pages/Dashboard.tsx`
+Replace the current `src/pages/detect/LatestScan.tsx` placeholder with a full single-scan breakdown screen, plus add placeholder destinations for every drill-through.
 
-Keep `TopMenu` + `BottomNav`. Remove all current GEM/Vitality/BioAge/Truth/Rewards content. New structure (all sections wrapped in `px-6 mb-4`, max-w mobile):
+## 1. Rewrite `src/pages/detect/LatestScan.tsx`
 
-**Header**
-- `h1` "Detect" + subtitle "Tap any card below to dig in"
+Standard layout: `TopMenu` + content + `BottomNav`, dark bg, `pb-24`. All dummy data inline. Reuse `glass-card`, zone colors (`success`/`warning`/`destructive`/`primary`), `font-display`, `active:scale-[0.98]`, lucide icons.
 
-**Section 1 — Next scan card**
-- glass-card, label "NEXT SCAN IN 4 DAYS", date "Sunday, 10 May", "Last scanned 17 minutes ago", primary button "Start scan" → `/scan`
+**Back nav bar** (sticky at top of content, below TopMenu)
+- Left: ArrowLeft + "Detect" → `navigate('/dashboard')`
+- Center: "Latest scan" (font-display, weight 500)
+- Right: MoreHorizontal icon (no-op for now)
 
-**Section 2 — Latest scan (hero)**
-- Section label "YOUR LATEST SCAN"
-- glass-card with stronger border (`border-primary/40 glow-primary`), top-right pill "TAP TO OPEN"
-- Left: circular Vitality gauge (SVG ring) showing 62, amber color, "Amber" label
-- Right: "Week 6 · Sunday", "Vitality Score", delta "▲ +5 vs last week"
-- Body: "**Notable shift:** Recovery dipped 3 points · top rec changed Liver → Kidney"
-- Footer chips: "capture quality", "all 5 recs", "retakes" prefixed by "Opens"
-- Whole card → `/detect/latest`, role=button, aria-label
+**Page header**
+- Row: "Week 6" (text-2xl, font-medium) | right-aligned "Sun 3 May · 9:42 AM" (text-xs muted)
+- Subtitle: "Captured 17 min ago · baseline locked" (text-xs muted)
 
-**Section 3 — Explore by pillar (2x2 grid)**
-- Section label "EXPLORE BY PILLAR" + microcopy "Tap any pillar for trends, witnesses, related recs ›"
-- 4 tiles `grid-cols-2 gap-3`. Each tile: pillar name, score (zone-colored), inline SVG sparkline (6 points) in zone color, ChevronRight in corner
-- Energy 75 green ↑ → `/detect/pillar/energy`
-- Recovery 70 amber peak-soft → `/detect/pillar/recovery`
-- Stress & NS 65 amber ↑ → `/detect/pillar/stress-nervous`
-- Control 68 amber peak-soft → `/detect/pillar/control`
+**Reusable section header pattern** — every section starts with:
+- Left: `text-[11px] uppercase tracking-wider text-muted-foreground` label
+- Right: small button "{Verb} ›" (text-xs, primary color) — tappable, routes to deeper destination
 
-**Section 4 — Explore over time (3 stacked rows)**
-- Section label "EXPLORE OVER TIME"
-- Each row: full-width glass-card, left icon tile, title + subtitle, right action pill "Open ›"
-- Trends (LineChart icon) "Vitality + 4 pillar lines · 6 weeks" → `/detect/trends`
-- Scan history (History icon) "All 6 scans · diff view · acute flags" → `/detect/history`
-- Recommendation archive (LayoutGrid icon) "What you've been recommended · why" → `/detect/recs`
+**Section 1 — Capture quality**
+- Header: "CAPTURE QUALITY" / "Details ›" → `/detect/latest/capture`
+- 5-col grid (`grid-cols-5 gap-2`), tiles: Voice/Breath/Face/Tongue/GEM. Each tile = small glass square, modality label, status icon (CheckCircle2 success-green; AlertTriangle warning-amber for Tongue)
+- Inline warning callout below grid (border-warning/40 bg-warning/5): "Tongue lighting was uneven" + right link "Retake ›" → `/scan/retake/tongue`
 
-**Section 5 — Capture quality (2 stacked rows)**
-- Section label "CAPTURE QUALITY"
-- Row 1 warning state: `border-warning/40` card, AlertTriangle icon in warning bg, title "Last capture" + small "1 WARN" pill, subtitle "Tongue lighting flagged · retake or improve", right pill "Fix ›" in warning style → `/detect/capture/tongue-retake`
-- Row 2 standard: GraduationCap icon, "Practice & tutorials", "Get cleaner captures · 5 modality guides", pill "Open ›" → `/detect/practice`
+**Section 2 — Vitality**
+- Header: "VITALITY" / "Breakdown ›" → `/detect/latest/vitality`
+- Tappable glass-card → `/detect/latest/vitality`. Two columns:
+  - Left: SVG circular gauge (62, amber stroke), "Amber" label below
+  - Right: "Vitality Score" (text-xs muted), "▲ +5 vs week 5" (success-green arrow), "Voltage × Resistance Efficiency" (text-[11px] muted italic)
 
-**Section 6 — Coach prompt (footer)**
-- Smaller card (`p-3`), accent `border-primary/20 bg-primary/5`, MessageCircle icon, text "Ask Coach about any of the above", pill "Ask ›" → `/ai-coach`
+**Section 3 — Pillars**
+- Header: "PILLARS" / "Tap any pillar ›" (right text is just microcopy, not a link)
+- 2×2 grid (`grid-cols-2 gap-3`). Each tile glass-card with ChevronRight in top-right corner:
+  - Top row: pillar name (left) | score (right, zone-colored, font-bold)
+  - Bottom row: zone label (left, muted) | delta with arrow (right, green/red)
+- Energy 75 Green ▲+2 → `/detect/pillar/energy`
+- Recovery 70 Amber ▼−3 → `/detect/pillar/recovery`
+- Stress & NS 65 Amber ▲+2 → `/detect/pillar/stress-nervous`
+- Control 68 Amber ▼−1 → `/detect/pillar/control`
 
-**Affordance details applied to every card:** `active:scale-[0.98]`, ChevronRight or action pill, `role="button"`, `tabIndex={0}`, `aria-label`. Action pills: small rounded-full button with verb + ChevronRight.
+**Section 4 — Notable shift callout**
+- Tappable glass-card with Coach accent (`border-primary/30 bg-primary/5`) → `/detect/latest/notable-shift`
+- Inside: header row "NOTABLE SHIFT" (uppercase muted) / "More ›"
+- Body: "Recovery dipped 3 points and Liver moved out of your top recommendation — Kidney Driver took its place."
 
-## 2. Placeholder destination pages
+**Section 5 — Your 5 Infoceuticals**
+- Header: "YOUR 5 INFOCEUTICALS" / "Tap any rec ›"
+- 5 stacked glass-cards (`space-y-2`). Each card:
+  - Left: large muted "1." prefix + name (font-medium) on first line, witness summary (text-xs muted) below
+  - Right: confidence chip (rounded-full px-2 py-0.5 text-[10px], green/amber bg) + ChevronRight
+- Data: Kidney Driver/High, Liver Driver/High, Emotional stress relief/Medium, Heart meridian/Medium, Stomach Driver/Medium
+- Each → `/detect/rec/{id}` (slugs: kidney-driver, liver-driver, emotional-stress-relief, heart-meridian, stomach-driver)
 
-Create one minimal placeholder component file each, all using `TopMenu` + `BottomNav` + a simple "Coming soon" card with back button to `/dashboard`:
+**Section 6 — Quick actions**
+- Header: "QUICK ACTIONS" (no right link)
+- Single grouped glass-card with 3 rows separated by `divide-y divide-border`. Each row: label left, ChevronRight right, full-width tappable, py-3 px-4
+- "Compare to last week" → `/detect/history/diff`
+- "View on Trends chart" → `/detect/trends?highlight=current`
+- "Share with practitioner" → `/share/scan/current`
 
-- `src/pages/detect/LatestScan.tsx` → `/detect/latest`
-- `src/pages/detect/Trends.tsx` → `/detect/trends`
-- `src/pages/detect/ScanHistory.tsx` → `/detect/history`
-- `src/pages/detect/RecArchive.tsx` → `/detect/recs`
-- `src/pages/detect/Practice.tsx` → `/detect/practice`
-- `src/pages/detect/TongueRetake.tsx` → `/detect/capture/tongue-retake`
+**Section 7 — Coach prompt**
+- Smaller glass-card (`p-3`, `border-primary/20 bg-primary/5`) → `/ai-coach?context=scan-week-6`
+- Row: MessageCircle icon + "Ask Coach about this scan" + ChevronRight
 
-Pillar tiles reuse existing `/pillar/:pillarId` route (already covers all 4 pillar ids — no new placeholders needed).
+**A11y on every tappable card:** `role="button"`, `tabIndex={0}`, `aria-label` describing what + destination, `active:scale-[0.98]` press state.
+
+## 2. New placeholder destination pages
+
+Reuse existing `src/pages/detect/Placeholder.tsx`. Create:
+
+- `src/pages/detect/CaptureDetail.tsx` → `/detect/latest/capture`
+- `src/pages/detect/VitalityBreakdown.tsx` → `/detect/latest/vitality`
+- `src/pages/detect/NotableShift.tsx` → `/detect/latest/notable-shift`
+- `src/pages/detect/RecDetail.tsx` → `/detect/rec/:recId` (reads param, shows name placeholder)
+- `src/pages/detect/HistoryDiff.tsx` → `/detect/history/diff`
+- `src/pages/scan/RetakeTongue.tsx` → `/scan/retake/tongue`
+- `src/pages/share/ShareScan.tsx` → `/share/scan/:scanId`
+
+`/detect/trends` already exists (query param ignored by placeholder). `/ai-coach` already exists (context param ignored). Pillar routes already exist.
 
 ## 3. Register routes in `src/App.tsx`
 
-Add 6 protected routes for the new placeholder pages above, mirroring existing `<Protected>` pattern.
+Add 7 new protected routes mirroring existing `<Protected>` pattern.
 
 ## Notes
-- All data is hardcoded dummy data inline in `Dashboard.tsx`.
-- Sparkline = small inline `<svg>` polyline, no chart lib.
+
+- All dummy data inline in `LatestScan.tsx`.
+- Vitality gauge = inline SVG (two `<circle>` elements, stroke-dasharray for progress), no chart lib.
+- A future iteration option (not done now): swap order of Notable Shift and Pillars sections if usability testing shows the bottom sections are under-engaged.
 - No DB/auth changes.
