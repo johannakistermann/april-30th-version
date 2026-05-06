@@ -108,7 +108,7 @@ const Home = () => {
     <div className="min-h-screen bg-background pb-24">
       <TopMenu />
 
-      <div className="max-w-md mx-auto">
+      <div className="w-full max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-4xl mx-auto">
         {/* Greeting */}
         <div className="px-5 pt-4 pb-2">
           <p className="text-[11px] text-muted-foreground font-display">{todayLabel}</p>
