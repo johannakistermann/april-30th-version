@@ -172,8 +172,8 @@
     --info: 287 21% 52%;                 /* Plum Light #8B6A9E */
     --info-foreground: 0 0% 100%;
 
-    --border: 48 8% 10% / 0.08;
-    --input: 48 8% 10% / 0.08;
+    --border: 36 15% 88%;
+    --input: 36 15% 88%;
     --ring: 36 45% 61%;
 
     /* Brand-specific tokens */
