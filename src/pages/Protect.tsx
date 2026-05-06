@@ -107,6 +107,7 @@ const Protect = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <TopMenu />
+      <div className="w-full max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-4xl mx-auto">
 
       {/* Header */}
       <div className="px-6 pt-8 pb-4 flex items-center gap-3">
@@ -185,6 +186,7 @@ const Protect = () => {
         })}
       </div>
 
+      </div>
       <BottomNav />
     </div>
   );

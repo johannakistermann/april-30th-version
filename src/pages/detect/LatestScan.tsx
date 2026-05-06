@@ -122,6 +122,7 @@ const LatestScan = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <TopMenu />
+      <div className="w-full max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-4xl mx-auto">
 
       {/* Back nav bar */}
       <div className="px-4 pt-4 flex items-center justify-between">
@@ -354,6 +355,7 @@ const LatestScan = () => {
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </div>
       </section>
+      </div>
 
       <BottomNav />
     </div>

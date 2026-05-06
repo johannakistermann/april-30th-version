@@ -13,6 +13,7 @@ const Placeholder = ({ title, description }: PlaceholderProps) => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <TopMenu />
+      <div className="w-full max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-4xl mx-auto">
       <div className="px-6 pt-6 pb-4 flex items-center gap-3">
         <button
           onClick={() => navigate("/dashboard")}
@@ -28,6 +29,7 @@ const Placeholder = ({ title, description }: PlaceholderProps) => {
           <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
           <p className="text-[11px] text-muted-foreground mt-3 italic">Coming soon — placeholder screen.</p>
         </div>
+      </div>
       </div>
       <BottomNav />
     </div>

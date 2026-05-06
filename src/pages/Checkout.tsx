@@ -25,8 +25,10 @@ const Checkout = () => {
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-background pb-24 flex flex-col items-center justify-center gap-4 px-6">
+      <div className="w-full max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-4xl mx-auto">
         <h2 className="text-lg font-display font-semibold">No items to checkout</h2>
         <Button onClick={() => navigate("/shop")}>Go to Shop</Button>
+      </div>
         <BottomNav />
       </div>
     );

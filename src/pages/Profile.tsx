@@ -32,6 +32,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      <div className="w-full max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-4xl mx-auto">
       <div className="px-6 pt-12 pb-6 flex items-center gap-3">
         <button onClick={() => window.history.length > 1 ? navigate(-1) : navigate("/home")} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
           <ArrowLeft className="w-4 h-4" />
@@ -179,6 +180,7 @@ const Profile = () => {
         </div>
       </div>
 
+      </div>
       <BottomNav />
     </div>
   );

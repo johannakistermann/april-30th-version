@@ -11,10 +11,12 @@ const Basket = () => {
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-background pb-24 flex flex-col items-center justify-center gap-4 px-6">
+      <div className="w-full max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-4xl mx-auto">
         <ShoppingBag className="w-12 h-12 text-muted-foreground" />
         <h2 className="text-lg font-display font-semibold">Your basket is empty</h2>
         <p className="text-sm text-muted-foreground text-center">Browse our shop and add items to get started.</p>
         <Button onClick={() => navigate("/shop")} className="mt-2">Continue Shopping</Button>
+      </div>
         <BottomNav />
       </div>
     );
