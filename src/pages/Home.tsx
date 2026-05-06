@@ -127,7 +127,7 @@ const Home = () => {
             <p className={`text-[10px] uppercase tracking-wider font-display ${isGemConnected ? "text-success" : "text-muted-foreground"}`}>
               {isGemConnected ? "CONNECTED" : "GEM"}
             </p>
-            <p className="text-sm font-medium mt-0.5">{isGemConnected ? lastGemLabel : "Get yours"}</p>
+            <p className="text-sm font-medium mt-0.5">{isGemConnected ? gemSyncLabel : "Get yours"}</p>
           </button>
         </div>
 
