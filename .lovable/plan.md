@@ -1,55 +1,68 @@
 ## Goal
 
-Reflect the GEM device's true behavior in the UI: it takes a reading every ~15 minutes and, when connected, syncs that reading to the app on the same cadence. Any "last sync / last reading / next sync" copy should be consistent with that 15-minute cycle.
+Replace the placeholder `src/pages/detect/VitalityBreakdown.tsx` with a full consumer-readable explanation of how Vitality is computed (Voltage × Resistance Efficiency), with all six sections, drill-throughs to existing routes, and dummy data that math-checks (73 × 0.85 ≈ 62).
 
-## Findings — current state of GEM time copy
+## Single-file build
 
-| Where | Current copy | Issue |
+All work lives in `src/pages/detect/VitalityBreakdown.tsx`. No new routes, no new shared components, no design-token additions — uses what's already in `index.css` / Tailwind.
+
+### Color identity mapping (using existing tokens)
+
+| Concept | Token | Notes |
 |---|---|---|
-| `src/pages/Home.tsx` (lines 79–90) | Seeds `lastGemSyncDate` to **30 min ago** on first load; shows `Synced Xm ago` indefinitely without ever advancing | Stale — never ticks. With a 15-min cycle, "30 min ago" implies a missed sync. |
-| `src/pages/gem/GemDetect.tsx` (line 22) | Hard-coded `GEM · Last reading: 2h ago` | Wrong cadence — should be ≤15 min when connected |
-| `src/pages/MyClients.tsx` (mock rows + line 186) | `gem_last_sync` set to dates days old, label `GEM synced Mar 15` | Practitioner view of a connected client should show recent (<15 min) sync, not a date |
-| `src/components/gem/GemSyncCountdown.tsx` | Manual sync animation (label "Syncing to GEM…") | Fine — used for explicit user-triggered sync from Protect, not the background 15-min cycle |
-| `src/pages/ProtectHub.tsx` | Manual "Sync to GEM device" CTA | Keep, but reword to clarify it's a *force* sync on top of the automatic 15-min cycle |
+| Voltage = teal | `hsl(var(--success))` (the app's green-teal) | Already used for "green zone" — close enough to teal, no new token needed |
+| Efficiency = purple | `hsl(var(--secondary))` ramped, plus inline `hsl(270 60% 65%)` for the dot/circle/line | Project has no purple token; keep purple inline only on this screen since it's a one-off explanatory visual key |
+| Vitality = amber | `hsl(var(--warning))` | Already the amber zone |
+| Coach card | `hsl(var(--info))` | Existing blue accent for the AI Coach card style elsewhere |
 
-There is no central source of truth for "when did the GEM last sync" — every screen invents its own copy.
+### Sections (top → bottom)
 
-## Plan
+1. **Back nav bar** — back arrow + label "Latest scan" → `navigate(-1)` (fallback `/detect/latest`), centered title "Vitality breakdown", overflow `MoreVertical` icon (no menu wired, just an aria button placeholder).
 
-### 1. Add a tiny shared GEM sync clock
+2. **Page header** — uppercase `VITALITY SCORE · WEEK 6`; row with `62` (5xl), `AMBER` chip in warning, right-aligned `▲ +5 vs week 5` in success; body copy paragraph explaining Voltage and Resistance Efficiency.
 
-New file: `src/lib/gem/syncClock.ts`
+3. **"How it's computed" formula card** — three circles in a row with `×` and `=` operators between them. Each circle ~64px, colored ring + value. Labels beneath. Math: 73 × 0.85 = 62.05.
 
-- Exports `GEM_SYNC_INTERVAL_MS = 15 * 60 * 1000`.
-- `useGemSync()` hook: returns `{ lastSyncAt: Date, nextSyncAt: Date, minutesSinceLast: number, minutesUntilNext: number, label: string }`.
-- Reads/writes `lastGemSyncDate` in localStorage. If missing or older than 15 min AND `isGemConnected` is true, it auto-advances `lastSyncAt` to the most recent 15-min boundary (simulates the background sync that "just happened").
-- Re-renders every 30 s via a `setInterval` so labels stay fresh.
-- `label` formats as: `"Just synced"` (<1 min), `"Synced Xm ago · next in Ym"` (1–14 min), `"Syncing now…"` during the simulated tick.
+4. **Voltage component card** — teal dot + title + value `73`; description; sub-label `FED BY 2 PILLARS`; two clickable rows:
+   - Energy 75 (green) → `/detect/pillar/energy`
+   - Recovery 70 (amber) → `/detect/pillar/recovery`
 
-### 2. Update consumer-facing copy to use the hook
+5. **Resistance Efficiency component card** — purple dot + title + value `85%`; description; same row pattern:
+   - Stress & NS 65 (amber) → `/detect/pillar/stress-nervous`
+   - Detox & elimination 58 (amber, sub-cluster note) → `/detect/pillar/control?cluster=detox`
 
-- **`src/pages/Home.tsx`** — replace the manual `formatDistanceToNow` block with `useGemSync().label`. Drop the 30-min-ago seed.
-- **`src/pages/gem/GemDetect.tsx`** — replace `Last reading: 2h ago` with `Last reading: {label}`. When disconnected, fall back to "GEM not connected".
-- **`src/pages/ProtectHub.tsx`** — under the "Sync to GEM device" CTA add a one-line subtext: `Auto-syncs every 15 min · Last: {label}`. Reword the manual button to "Force sync now".
+6. **6-week trend** — header with "6-WEEK TREND" + "Open in Trends ›" link → `/detect/trends?series=vitality,voltage,efficiency`. Inline SVG line chart, three series (Vitality solid amber thicker, Voltage thinner teal, Efficiency dashed purple), W6 marker dot on Vitality, x-axis labels W1–W6. Legend row beneath.
 
-### 3. Update practitioner view
+7. **Auto-generated insight card** — subtle teal-tinted card with bold heading "What's driving this week's score" and the hardcoded explanation paragraph from the spec.
 
-- **`src/pages/MyClients.tsx`** — for mock clients with `has_gem: true`, change `gem_last_sync` to a relative timestamp (e.g. `Date.now() - 4 * 60 * 1000`) and render with the same hook output: `GEM synced 4m ago` instead of a calendar date. Clients without recent activity ("Emma Rodriguez") show `GEM offline · Last sync 2d ago`.
-- **`src/pages/ClientDetail.tsx`** — same treatment if it shows GEM sync time (verify in implementation).
+8. **Coach prompt card** — info-tinted, smaller, chat icon + "Ask Coach about Voltage or Efficiency" + chevron → `/ai-coach?context=vitality-breakdown`.
 
-### 4. DevGemToggle interaction
+### Affordance details
 
-When the dev toggle flips GEM **OFF**, leave the last sync timestamp frozen (so "Synced 7m ago · GEM offline" reads correctly). When flipped **ON**, snap to "Just synced". This lives in `useGemSync` reacting to `useGemConnection()`.
+- Every clickable card / row: `role="button"`, `tabIndex={0}`, descriptive `aria-label`, `active:scale-[0.98]` press state, `cursor-pointer`.
+- Pillar rows: `flex` with name/subtitle on left, score (zone-colored) + chevron on right.
+- All values pulled from a single `const data = { … }` object at the top of the file so the demo is easy to retune.
+
+### SVG chart sketch
+
+```text
+W1 W2 W3 W4 W5 W6
+amber Vitality:    55 58 60 57 57 62  (solid, stroke 2.5)
+teal  Voltage:     65 67 70 70 71 73  (solid, stroke 1.5, opacity 0.7)
+purple Efficiency: 80 82 83 81 80 85  (dashed, stroke 1.5)
+```
+Plotted in a ~140px-tall viewBox with a faint horizontal gridline at 50/75/100. W6 dot on amber line, radius 4.
 
 ## Out of scope
 
-- No real Bluetooth, no real backend sync. The 15-min cycle is simulated on the client.
-- No changes to scan-time copy ("Last scanned 17 minutes ago" on Dashboard) — that's a separate concept (manual scan, not GEM passive reading).
-- No design-token, color, or layout changes.
+- No tooltip/onboarding overlay for "Voltage / Resistance Efficiency" first-time terms — flagged in handoff per spec, not built now.
+- No real data wiring; the auto-generated insight stays hardcoded.
+- No new icons beyond what's already in `lucide-react`.
 
 ## Verification
 
-- Load `/home` with GEM ON → label reads `Just synced` or `Synced Xm ago · next in (15-X)m`. Wait 30 s → label updates.
-- Toggle GEM OFF via dev pill → label freezes and gains `· offline` suffix. Toggle ON → snaps to `Just synced`.
-- `/gem/detect` and `/protect` show the same label.
-- `/clients` shows minute-level recency for connected clients, date-level only for stale ones.
+- Tap "Breakdown ›" on `/detect/latest` → lands on `/detect/latest/vitality`.
+- Tap each pillar row → routes correctly.
+- Tap "Open in Trends ›" → routes with the query string.
+- Tap Coach card → routes to `/ai-coach?context=vitality-breakdown`.
+- Math: 73 × 0.85 displays as `62`.
