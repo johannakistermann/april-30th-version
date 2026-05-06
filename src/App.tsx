@@ -150,6 +150,7 @@ const App = () => (
           <BrowserRouter>
             <DevGemToggle />
             <DevTierToggle />
+            <DevRoleToggle />
             <AppContent />
             <ActiveSessionStrip />
           </BrowserRouter>
