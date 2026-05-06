@@ -32,10 +32,10 @@ interface Invitation {
 }
 
 const SAMPLE_CLIENTS: ClientConnection[] = [
-  { id: "s1", client_id: "sc1", connected_at: "2026-01-15", status: "active", profiles: { display_name: "Sarah Chen" }, email: "sarah.chen@email.com", last_scan: "2026-03-12", has_gem: true, gem_last_sync: "2026-03-15T09:30:00" },
-  { id: "s2", client_id: "sc2", connected_at: "2026-02-01", status: "active", profiles: { display_name: "Marcus Williams" }, email: "marcus.w@email.com", last_scan: "2026-03-10", has_gem: true, gem_last_sync: "2026-03-14T18:00:00" },
+  { id: "s1", client_id: "sc1", connected_at: "2026-01-15", status: "active", profiles: { display_name: "Sarah Chen" }, email: "sarah.chen@email.com", last_scan: "2026-03-12", has_gem: true, gem_last_sync: minutesAgo(4) },
+  { id: "s2", client_id: "sc2", connected_at: "2026-02-01", status: "active", profiles: { display_name: "Marcus Williams" }, email: "marcus.w@email.com", last_scan: "2026-03-10", has_gem: true, gem_last_sync: minutesAgo(11) },
   { id: "s3", client_id: "sc3", connected_at: "2026-01-20", status: "active", profiles: { display_name: "Elena Rodriguez" }, email: "elena.r@email.com", last_scan: "2026-03-08", has_gem: false },
-  { id: "s4", client_id: "sc4", connected_at: "2026-02-10", status: "active", profiles: { display_name: "James Park" }, email: "james.park@email.com", last_scan: "2026-03-01", has_gem: true, gem_last_sync: "2026-03-10T12:00:00" },
+  { id: "s4", client_id: "sc4", connected_at: "2026-02-10", status: "active", profiles: { display_name: "James Park" }, email: "james.park@email.com", last_scan: "2026-03-01", has_gem: true, gem_last_sync: minutesAgo(60 * 26) },
   { id: "s5", client_id: "sc5", connected_at: "2025-12-05", status: "active", profiles: { display_name: "Aisha Patel" }, email: "aisha.p@email.com", last_scan: "2026-02-25", has_gem: false },
 ];
 
