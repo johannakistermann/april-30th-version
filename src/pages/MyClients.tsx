@@ -184,13 +184,15 @@ const MyClients = () => {
                         )}
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <Watch className="w-3 h-3" style={{ color: client.has_gem ? 'hsl(var(--success))' : 'hsl(var(--muted-foreground))' }} />
-                          {client.has_gem ? (
-                            <span className="text-[10px] text-success">
-                              GEM synced {client.gem_last_sync
-                                ? new Date(client.gem_last_sync).toLocaleDateString("en-US", { month: "short", day: "numeric" })
-                                : "—"}
-                            </span>
-                          ) : (
+                          {client.has_gem ? (() => {
+                            const syncDate = client.gem_last_sync ? new Date(client.gem_last_sync) : null;
+                            const online = !!syncDate && Date.now() - syncDate.getTime() < 30 * 60 * 1000;
+                            return (
+                              <span className={`text-[10px] ${online ? "text-success" : "text-muted-foreground"}`}>
+                                {formatGemSyncLabel(syncDate, online)}
+                              </span>
+                            );
+                          })() : (
                             <span className="text-[10px] text-muted-foreground">No GEM</span>
                           )}
                         </div>
