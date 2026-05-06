@@ -217,6 +217,15 @@ const LatestScan = () => {
         <div className="grid grid-cols-2 gap-3">
           {pillars.map((p) => {
             const positive = p.delta >= 0;
+            const termChip = (() => {
+              switch (p.id) {
+                case "energy": return { label: "→ Voltage", className: "bg-success/15 text-success" };
+                case "recovery": return { label: "→ V + R", style: { background: "linear-gradient(90deg, hsl(var(--success) / 0.18), hsl(var(--destructive) / 0.18))", color: "hsl(var(--foreground))" } as React.CSSProperties };
+                case "stress-nervous": return { label: "→ Resistance", className: "bg-destructive/15 text-destructive" };
+                case "control": return { label: "→ Information", style: { background: "hsl(270 60% 70% / 0.15)", color: "hsl(270 60% 70%)" } as React.CSSProperties };
+                default: return null;
+              }
+            })();
             return (
               <div
                 key={p.id}
@@ -236,6 +245,14 @@ const LatestScan = () => {
                     {p.score}
                   </span>
                 </div>
+                {termChip && (
+                  <span
+                    className={`inline-block mt-1 px-1.5 py-0.5 rounded-md text-[9px] font-display font-semibold ${termChip.className ?? ""}`}
+                    style={termChip.style}
+                  >
+                    {termChip.label}
+                  </span>
+                )}
                 <div className="flex items-center justify-between mt-2">
                   <span className="text-[11px] text-muted-foreground capitalize">{p.zone}</span>
                   <span
