@@ -51,6 +51,12 @@ import FindPractitioner from "./pages/FindPractitioner";
 import ClientDetail from "./pages/ClientDetail";
 import Subscription from "./pages/Subscription";
 import NotFound from "./pages/NotFound";
+import LatestScan from "./pages/detect/LatestScan";
+import Trends from "./pages/detect/Trends";
+import ScanHistory from "./pages/detect/ScanHistory";
+import RecArchive from "./pages/detect/RecArchive";
+import DetectPractice from "./pages/detect/Practice";
+import TongueRetake from "./pages/detect/TongueRetake";
 
 const queryClient = new QueryClient();
 
@@ -107,6 +113,13 @@ const AppContent = () => {
       <Route path="/my-practitioner" element={<Protected><MyPractitioner /></Protected>} />
       <Route path="/find-practitioner" element={<Protected><FindPractitioner /></Protected>} />
       <Route path="/subscription" element={<Protected><Subscription /></Protected>} />
+      <Route path="/detect/latest" element={<Protected><LatestScan /></Protected>} />
+      <Route path="/detect/trends" element={<Protected><Trends /></Protected>} />
+      <Route path="/detect/history" element={<Protected><ScanHistory /></Protected>} />
+      <Route path="/detect/recs" element={<Protected><RecArchive /></Protected>} />
+      <Route path="/detect/practice" element={<Protected><DetectPractice /></Protected>} />
+      <Route path="/detect/capture/tongue-retake" element={<Protected><TongueRetake /></Protected>} />
+      <Route path="/detect/pillar/:pillarId" element={<Protected><PillarDetail /></Protected>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
