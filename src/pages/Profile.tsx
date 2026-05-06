@@ -180,6 +180,7 @@ const Profile = () => {
         </div>
       </div>
 
+      </div>
       <BottomNav />
     </div>
   );

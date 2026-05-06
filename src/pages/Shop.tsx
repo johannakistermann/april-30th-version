@@ -74,6 +74,7 @@ const Shop = () => {
         </div>
       </div>
 
+      </div>
       <BottomNav />
     </div>
   );

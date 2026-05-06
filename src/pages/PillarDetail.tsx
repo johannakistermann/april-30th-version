@@ -212,6 +212,7 @@ const PillarDetail = () => {
         })}
       </div>
 
+      </div>
       <BottomNav />
     </div>
   );

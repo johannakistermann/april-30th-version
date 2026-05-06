@@ -107,6 +107,7 @@ const Learn = () => {
         </TabsContent>
       </Tabs>
 
+      </div>
       <BottomNav />
     </div>
   );
