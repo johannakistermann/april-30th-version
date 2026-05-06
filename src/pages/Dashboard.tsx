@@ -70,6 +70,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <TopMenu />
+      <div className="w-full max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-4xl mx-auto">
 
       {/* Header */}
       <div className="px-6 pt-6 pb-4">
@@ -288,6 +289,8 @@ const Dashboard = () => {
           <p className="flex-1 text-xs font-display font-medium">Ask Coach about any of the above</p>
           <ActionPill label="Ask" />
         </button>
+      </div>
+
       </div>
 
       <BottomNav />
