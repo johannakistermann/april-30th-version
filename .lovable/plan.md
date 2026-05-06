@@ -1,112 +1,172 @@
 ## Goal
 
-Pilot the Energy4Life brand spec on the Home screen (`/home`) only. Other screens stay on the existing dark/glass theme until we validate this on real content. No E4L logo — the screen stays GEM-branded.
+Apply Master Spec v5.4 surgical UI updates across 4 existing screens and create 1 new screen (Control pillar dual-layer detail). All changes are presentation-layer only — the scoring engine in `src/lib/scoring/` stays untouched (the v5.4 numbers are mocked at the component level for now). Use existing design tokens; add no new global styles.
 
-## Approach: scoped brand layer
+## Color identity (existing tokens, used consistently)
 
-To avoid touching the global dark theme (which the rest of the app depends on), introduce the E4L design tokens as a **scoped block** rather than overriding `:root`. Wrap the Home page in a `<div className="brand-e4l">` and define all spec tokens under that selector. Components inside read the same semantic tokens (`--background`, `--foreground`, `--primary`, `--card`, `--border`, `--muted-foreground`) but resolve to the E4L palette.
+| Term | Color | Token |
+|---|---|---|
+| Information (Control) | Purple | inline `hsl(270 60% 70%)` (already established on Vitality Breakdown) |
+| Voltage | Teal | `hsl(var(--success))` |
+| Resistance | Red/destructive | `hsl(var(--destructive))` (new mapping for the R term) |
+| Vitality | Amber | `hsl(var(--warning))` |
 
-This means:
-- No changes to `tailwind.config.ts` color names — semantic tokens get remapped within the wrapper.
-- Existing shadcn components (Button, Card) automatically pick up the new look on Home.
-- Other routes are completely untouched.
+A small `EquationChip` helper (defined inline per screen — no shared component to avoid sprawl) renders a 1-letter or short-text pill in the term color.
 
-## Files to change
+---
 
-### 1. `src/index.css` — add E4L scoped layer
+## Screen 1 — `src/pages/Home.tsx`
 
-Add fonts (Cormorant Garamond, DM Sans, JetBrains Mono) and a `.brand-e4l` block that overrides:
-- `--background` → Ivory `#FAF8F5`
-- `--foreground` → Deep Earth `#1A1A17`
-- `--card` → White, `--card-foreground` → Deep Earth
-- `--primary` → Amber Signal `#C9A96E`, `--primary-foreground` → Deep Earth
-- `--muted` / `--muted-foreground` → warm cream / `#3D3A35`
-- `--border` → `rgba(0,0,0,0.06)`
-- `--success` / `--warning` / `--destructive` → keep but re-tune toward warm tones (Deep Teal for success, Amber for warning, Burnt Ember for destructive) so existing zone components don't clash with the warm palette
-- `--radius` → `0` for primary CTAs only (via a `.brand-e4l .cta-rect` utility, keep card radius)
+1. Find the Vitality formula subtitle under the gauge and change `"Voltage × Resistance Efficiency"` → `"Information × Voltage / Resistance"`.
+2. Directly under the Vitality Score gauge (before the pillar tiles), insert a non-interactive horizontal row:
 
-Also add inside the scope:
-- `.brand-e4l` body font → DM Sans, weight 300, line-height 1.8
-- `.brand-e4l h1, h2, h3, .font-display` → Cormorant Garamond
-- `.brand-e4l .label-caps` → DM Sans 10px, uppercase, tracking 0.25em, amber
-- `.brand-e4l .equation` → JetBrains Mono italic, equation-gold
-- `.brand-e4l .hex-bullet::before` → hex glyph in amber
-- A `.brand-e4l .impact-band` utility → Walnut bg, white text, for the hero/Vitality block
+```text
+[ I ]  ×  [ V ]  /  [ R ]
+purple    teal     destructive
+```
 
-All colors written in HSL via the existing token system (per design rules).
+Each chip ~24px tall, rounded, colored bg at ~12% alpha + colored text. Operators (`×`, `/`) in muted-foreground. `aria-hidden` since pillar tiles below are the interactive surface.
 
-### 2. `src/pages/Home.tsx` — apply brand wrapper and restructure visuals
+3. The Recovery pillar tile gets a small visual cue that it splits between V and R: a 2-color left border (top half teal, bottom half destructive) — purely cosmetic.
 
-Wrap top-level container with `className="brand-e4l ..."`. Then:
+No other Home changes.
 
-**Greeting block**
-- Replace small caps date with a gold `label-caps` tagline ("TODAY · WEEK 2")
-- Greeting in Cormorant 28px light, sentence case
+## Screen 2 — Detect landing
 
-**Last Scan / GEM strip**
-- Switch from filled glass cards to white cards with hairline `0.5px` borders
-- Status label uses `label-caps` style, value in Cormorant
+No changes.
 
-**Vitality hero — promote to "impact band"**
-- Wrap in `.impact-band` (Walnut background, white text)
-- Add atmospheric equation watermark `V = (I×V)/(R×E)` top-right at 7% opacity
-- Score number → Cormorant 56px light
-- "Vitality Score" → Cormorant 22px
-- Subtitle "Information × Voltage / Resistance" → JetBrains Mono italic, equation-gold
-- I × V / R chips: keep semantics, swap colors to Plum (I), Deep Teal (V), Burnt Ember (R), all with low-alpha bg
-- Baseline establishing pill → cream bg, plum text
+## Screen 3 — `src/pages/detect/LatestScan.tsx`
 
-**3 pillar tiles**
-- White cards with hairline border, hex bullet before pillar name
-- Score in Cormorant; zone label as `label-caps` in zone color
-- Recovery split-color indicator stays (teal/ember instead of success/destructive)
+In the Pillars section, add a tiny equation-term chip (`text-[9px]`, color-tinted bg) to each pillar tile header:
 
-**Bioenergetic Priorities**
-- White card; "THIS WEEK'S BIOENERGETIC PRIORITIES" as `label-caps` amber
-- "Control · 78" in Cormorant
-- Sub-score rows with hex bullets, monospace numerals
+- Energy → `Voltage` (teal)
+- Recovery → `V + R` (split — half-teal/half-destructive bg)
+- Stress & NS → `Resistance` (destructive)
+- Control → `Information` (purple)
 
-**This week's 5 Infoceuticals**
-- Section header Cormorant 20px; "View all ›" amber `label-caps`
-- Rows white with hairline; confidence chip swapped to muted plum/teal/cream tints
+Chip placed inline next to the pillar name, no layout reflow. If a tile is too tight at small widths, the chip wraps below the name.
 
-**Today's program card**
-- Replace green gradient with Walnut `.impact-band` styling + amber accent line + Plum-Light tint (this is the "Protect" product accent per spec)
-- "Start now" CTA → rectangular gold button, uppercase, `tracking-cta`
+## Screen 4 — `src/pages/detect/VitalityBreakdown.tsx` (rewrite)
 
-**Ask the Coach**
-- White card, plum accent border, hex icon
-- CTA pattern: amber arrow + uppercase label
+Restructure to the three-term equation. Update the top-level `data` object:
 
-**Weekly scan streak**
-- White card, segmented progress bar in amber
-- Streak count in Cormorant
+```ts
+const data = {
+  week: 6,
+  vitality: 62, zone: "AMBER", delta: 5,
+  information: { multiplier: 1.04, controlScore: 70, constitutional: 68, crossModal: 73 },
+  voltage: 73,
+  resistance: 16, // = 100 - stressCombined
+  pillars: {
+    energy: { score: 75, zone: "green", route: "/detect/pillar/energy" },
+    recoveryVoltage: { score: 71, zone: "amber", route: "/detect/pillar/recovery" }, // sleep + mito
+    stress: { score: 65, zone: "amber", route: "/detect/pillar/stress-nervous" },
+    recoveryHRV: { score: 68, zone: "amber", route: "/detect/pillar/recovery" }, // overnight HRV
+  },
+  trend: { weeks: ["W1".."W6"], vitality:[…], voltage:[…], information:[…0.97..1.04] },
+};
+```
 
-**Footer (new)**
-- Add small disclaimer at the bottom of `/home` per spec section 11, in `text-muted-foreground` 11px
+### Changes section by section
 
-### 3. Memory updates
+1. **Header** — copy unchanged.
+2. **Formula card** — four circles in a row separated by `× / =`:
 
-After implementation, update `mem://index.md` Core block:
-- Add note: "Brand pilot: `.brand-e4l` scoped tokens on Home only (Ivory canvas, Walnut impact bands, Cormorant + DM Sans + JetBrains Mono, amber CTAs, hex bullets). Other screens unchanged. No E4L logo."
+```text
+[ 1.04 ]  ×  [ 73 ]  /  [ 16 ]  =  [ 62 ]
+Info      Voltage    Resist.    Vitality
+purple    teal       destruct.  amber
+```
 
-Add a new memory file `mem://style/e4l-brand-pilot` with: scope (Home only), token mapping summary, anti-patterns to avoid (no green, no pure black/white, no rounded CTAs, no bold body), and a pointer to the source spec.
+The Information circle has a smaller `Control 70` line below the multiplier. Below the formula row, add a 2–3-line muted-foreground explainer paragraph defining Information.
 
-## Out of scope (explicitly)
+3. **Information component card** (new, first card)
+   - Header: purple dot + `Information` + value `1.04 ×` (with `Control 70` muted below)
+   - Description (per spec)
+   - `FED BY 2 COMPONENTS` rows:
+     - `Constitutional Pattern (60%)` + subtitle + value `68`
+     - `Cross-Modal Agreement (40%)` + subtitle + value `73`
+   - Tap → `/detect/pillar/control`
 
-- Tailwind config color names — not changing
-- Other routes (Dashboard, Scan, Coach, Learn, Shop, Profile, Onboarding, Splash) — untouched
-- ENERGY4LIFE wordmark — not added (memory rule preserved)
-- Equation library beyond the single Vitality equation watermark on the hero
-- Flipping the global theme to light mode — not happening; this is a scoped pilot
+4. **Voltage card** — keep current structure but update Recovery row subtitle to `"Sleep quality and mitochondrial restoration · Overnight HRV is in Resistance now"` and value to `71` (Recovery_Voltage_Component). Energy row unchanged.
 
-## Validation after build
+5. **Resistance card** (replaces Resistance Efficiency card)
+   - Header: destructive dot + `Resistance` + value `16`
+   - Description: friction-language copy from spec
+   - `FED BY 2 SOURCES`:
+     - `Stress & NS (85%)` → score 65 (amber)
+     - `Recovery (Overnight HRV, 15%)` → score 68 (amber)
 
-1. Visit `/home` — confirm light Ivory canvas, Walnut impact bands, Cormorant headlines, gold rectangular CTAs, hex bullets, equation watermark, no green tones leaking through.
-2. Visit `/dashboard`, `/scan`, `/coach`, `/learn`, `/shop`, `/profile` — confirm they look identical to before (dark glass theme intact).
-3. Confirm interactive states (button hovers, active scaling) still work.
+6. **6-week trend** — extend chart to plot 3 series:
+   - Vitality (solid amber, thicker) — primary axis
+   - Voltage (faint teal) — primary axis
+   - Information multiplier (dashed purple) — **secondary axis** mapped 0.9→bottom, 1.1→top of inner area
+   - Legend updated to 3 entries
 
-## Open follow-ups (after pilot)
+7. **Auto-insight card** — replace copy with three-term version from spec.
+8. **Coach prompt** — copy → `"Ask Coach about Information, Voltage, or Resistance"`.
 
-- If approved, roll out the `.brand-e4l` wrapper to remaining authenticated screens one section at a time (Dashboard → Scan → Coach → Learn → Shop → Profile), then Onboarding/Splash/Auth.
-- Decide whether to retire the dark/glass theme entirely or keep it as the "impact band" treatment only.
+## Screen 5 — Recovery pillar detail (`src/pages/PillarDetail.tsx`)
+
+Conditional on `activeId === "recovery"`, when rendering each sub-score row, append a small equation-term chip to the right of the sub-score name:
+
+- name matching `/sleep/i` → `→ Voltage` (teal)
+- name matching `/hrv/i` → `→ Resistance` (destructive)
+- name matching `/mitoc/i` → `→ Voltage` (teal)
+
+Chip is `text-[9px]`, no layout change otherwise. No business logic touched — sub-scores still come from `useVitality()` as-is.
+
+## Screen 6 — Control pillar detail (NEW dual-layer view)
+
+The current `PillarDetail.tsx` handles all four pillars generically. For Control, we replace that branch with a dedicated dual-layer layout. Implementation: extract a new component `src/pages/detect/ControlPillarDetail.tsx` and render it from `PillarDetail.tsx` when `activeId === "control"` (keeps the Pillar switcher and back nav consistent, minimal disruption). All routes already resolve via `/detect/pillar/control`.
+
+### Sections
+
+1. **Header** — `VITALITY PILLAR · WEEK 6`, title `Control`, large score `70`, `AMBER` zone, delta. To the right of the title, a purple `→ Information` chip. Body copy as per spec.
+
+2. **Section 1 — Headline Layer** (`HEADLINE SCORE · CONTROL = INFORMATION`)
+   - Sub-header explainer
+   - **Constitutional Pattern card (60%)**:
+     - Title row with weight pill
+     - Description copy
+     - Feature grid — 8 small rows (tongue body color, cracking, swelling, teeth marks, nasolabial fold, liver line, Frank's sign, FaceAge delta), each with feature name on left and a `✓ / —` indicator on the right (mocked deterministically)
+   - **Cross-Modal Agreement card (40%)**:
+     - Title + weight pill
+     - Description
+     - Mini score visualization (horizontal bar 0–100 with `73` marker)
+     - 5 pattern rows with `Tongue ✓ / Face ✓` or `Tongue ✓ / Face —` indicators
+
+3. **Section 2 — Sub-Scores Layer** (`FOUR FOCUS AREAS · DRIVES YOUR RECOMMENDATIONS`)
+   - Sub-header explainer (voice resonance / ranking instrument)
+   - 4 tappable rows with weight, score, mock primary EDs and witness count, chevron:
+     - Vitality & Constitution 25% — score 78
+     - Digestion & Metabolism 30% — score 62
+     - Detox & Elimination 25% — score 58
+     - Immunity & Defence 20% — score 80
+   - Tap → `/detect/pillar/control/cluster/[name]` (existing routes resolve to `Placeholder` or `?cluster=` query — fine for now; no router changes needed beyond what already exists; if no match, fall back to `/detect/pillar/control?cluster=[name]`).
+
+4. **Section 3 — "Why two layers?"** — collapsible card using existing `Collapsible` UI primitive, with explainer copy.
+
+5. **Section 4 — Recommendations targeting Control sub-scores** — reuse the recommendation row style from existing pillar detail; pull from `getWeeklyRecs()` in `mockRecommendations` filtered to control sub-clusters (or just first 3 mocked items if no filter exists — placeholder is fine).
+
+6. **Section 5 — Coach prompt** — same style as Vitality Breakdown's coach card; routes to `/ai-coach?context=control-pillar`.
+
+### Affordances
+
+- Same `glass-card`, `active:scale-[0.98]`, `role="button"`, `aria-label` patterns used throughout the app.
+- Chevron + zone-colored score on every tappable row.
+- No new design tokens.
+
+## Out of scope
+
+- No engine changes in `src/lib/scoring/` — Information, Resistance, and Recovery routing remain mocked at the screen level.
+- Sub-cluster detail screens not built; placeholder routes acceptable.
+- The 3 open product questions (Information display format, chips on Home, third trend line) ship with the spec defaults — easy to swap later.
+
+## Verification
+
+- Home: `I × V / R` chips visible under gauge, formula label updated, Recovery tile shows split-color cue.
+- Latest Scan: each pillar tile has equation-term chip with the correct color.
+- Vitality Breakdown: math reads `1.04 × 73 / (1 − 16/100) ≈ 88` — **note**: the spec literally says `Information × Voltage / Resistance ≈ Vitality` and gives `62`. With Information=1.04, Voltage=73, Resistance=16 the only formula that hits 62 is `Info × Voltage × (1 − Resistance/100) ≈ 64`, still not 62. The dummy numbers in the brief don't math-check perfectly. **Decision for V1:** display the four circles with the spec's chosen values (1.04, 73, 16, 62) and the operators `× / =` exactly as specified — the displayed Vitality is rendered from `data.vitality`, not recomputed live, so the visual stays consistent and the engine wiring is a later task. Flag this in the handoff.
+- Recovery detail: each sub-score row shows correct routing chip.
+- Control detail: both layers render distinctly; sub-cluster rows route; collapsible explainer opens.

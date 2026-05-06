@@ -102,54 +102,48 @@ const Home = () => {
     .slice(0, 4);
 
   return (
-    <div className="brand-e4l min-h-screen pb-24" style={{ backgroundColor: "hsl(var(--background))" }}>
+    <div className="min-h-screen bg-background pb-24">
       <TopMenu />
 
       <div className="w-full max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-4xl mx-auto">
         {/* Greeting */}
-        <div className="px-5 pt-5 pb-3">
-          <p className="label-caps">{todayLabel}</p>
-          <h1 className="text-[28px] font-display font-light leading-tight mt-2">
-            {getGreeting()}, <em className="italic" style={{ color: "hsl(var(--e4l-amber))" }}>{firstName}</em>.
-          </h1>
+        <div className="px-5 pt-4 pb-2">
+          <p className="text-[11px] text-muted-foreground font-display">{todayLabel}</p>
+          <p className="text-lg font-display font-medium mt-0.5">{getGreeting()}, {firstName}</p>
         </div>
 
         {/* Last Scan / GEM strip */}
-        <div className="px-5 pb-4 grid grid-cols-2 gap-2">
+        <div className="px-5 pb-3 grid grid-cols-2 gap-2">
           <button
             onClick={() => navigate("/dashboard")}
-            className="e4l-card px-3.5 py-3 text-left active:scale-[0.98] transition-transform"
+            className="bg-card/60 border border-border/60 rounded-xl px-3.5 py-3.5 text-left active:scale-[0.98] transition-transform"
           >
-            <p className="label-caps">Last scan</p>
-            <p className="text-base font-display font-light mt-1">{lastScanLabel}</p>
+            <p className="text-sm font-medium">{lastScanLabel}</p>
           </button>
           <button
             onClick={() => navigate(isGemConnected ? "/gem/detect" : "/shop")}
-            className="e4l-card px-3.5 py-3 text-left active:scale-[0.98] transition-transform"
+            className="bg-card/60 border border-border/60 rounded-xl px-3.5 py-3 text-left active:scale-[0.98] transition-transform"
           >
-            <p className="label-caps" style={isGemConnected ? { color: "hsl(var(--e4l-teal))" } : undefined}>
-              {isGemConnected ? "Connected" : "GEM"}
+            <p className={`text-[10px] uppercase tracking-wider font-display ${isGemConnected ? "text-success" : "text-muted-foreground"}`}>
+              {isGemConnected ? "CONNECTED" : "GEM"}
             </p>
-            <p className="text-base font-display font-light mt-1">{isGemConnected ? gemSyncLabel : "Get yours"}</p>
+            <p className="text-sm font-medium mt-0.5">{isGemConnected ? gemSyncLabel : "Get yours"}</p>
           </button>
         </div>
 
-        {/* Vitality hero — impact band */}
-        <div className="px-5 pb-4">
+        {/* Vitality hero — baseline-week aware */}
+        <div className="px-5 pb-3">
           <button
             onClick={() => navigate("/dashboard")}
-            className="impact-band w-full p-5 flex items-center gap-5 text-left active:scale-[0.99] transition-transform rounded-md"
+            className="w-full bg-card/60 border border-primary/40 rounded-2xl p-4 flex items-center gap-4 text-left active:scale-[0.98] transition-transform"
           >
-            <span aria-hidden className="equation-watermark" style={{ top: 10, right: 12, fontSize: 22 }}>
-              V = (I×V)/(R×E)
-            </span>
-            <div className="relative w-[96px] h-[96px] flex-shrink-0">
+            <div className="relative w-[86px] h-[86px] flex-shrink-0">
               <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="4" />
+                <circle cx="50" cy="50" r="42" fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
                 <circle
                   cx="50" cy="50" r="42" fill="none"
-                  stroke="hsl(var(--e4l-amber))"
-                  strokeWidth="4"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth="6"
                   strokeLinecap="round"
                   strokeDasharray={`${2 * Math.PI * 42}`}
                   strokeDashoffset={`${2 * Math.PI * 42 * (1 - vitality.score / 100)}`}
@@ -158,57 +152,59 @@ const Home = () => {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-[44px] font-display font-light leading-none text-white">{vitality.score}</span>
+                <span className="text-2xl font-display font-medium leading-none">{vitality.score}</span>
                 {baseline.isEstablishing && (
-                  <span className="text-[9px] text-white/60 mt-1">establishing</span>
+                  <span className="text-[9px] text-muted-foreground mt-1">establishing</span>
                 )}
               </div>
             </div>
-            <div className="flex-1 min-w-0 relative z-10">
-              <p className="text-2xl font-display font-light text-white leading-tight">Vitality Score</p>
-              <p className="equation text-[12px] mt-1">I × V / R</p>
-              <div className="flex items-center gap-1.5 mt-2.5" aria-hidden="true">
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-mono"
-                  style={{ background: "hsl(var(--e4l-plum-light) / 0.25)", color: "hsl(var(--e4l-lavender))" }}>I</span>
-                <span className="text-[10px] text-white/50">×</span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-mono"
-                  style={{ background: "hsl(var(--e4l-teal) / 0.3)", color: "#9CC9DA" }}>V</span>
-                <span className="text-[10px] text-white/50">/</span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-mono"
-                  style={{ background: "hsl(var(--e4l-ember) / 0.25)", color: "#E8A685" }}>R</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-base font-display font-medium">Vitality Score</p>
+              <p className="text-xs text-muted-foreground mt-1 leading-snug">Information × Voltage / Resistance</p>
+              {/* I × V / R contribution chips */}
+              <div className="flex items-center gap-1.5 mt-2" aria-hidden="true">
+                <span
+                  className="px-1.5 py-0.5 rounded-md text-[10px] font-display font-semibold"
+                  style={{ background: "hsl(270 60% 70% / 0.15)", color: "hsl(270 60% 70%)" }}
+                >I</span>
+                <span className="text-[10px] text-muted-foreground">×</span>
+                <span className="px-1.5 py-0.5 rounded-md text-[10px] font-display font-semibold bg-success/15 text-success">V</span>
+                <span className="text-[10px] text-muted-foreground">/</span>
+                <span className="px-1.5 py-0.5 rounded-md text-[10px] font-display font-semibold bg-destructive/15 text-destructive">R</span>
               </div>
               {baseline.isEstablishing ? (
-                <p className="text-[11px] mt-2.5" style={{ color: "hsl(var(--e4l-lavender))" }}>
-                  Baseline locks after 4 weekly scans ({Math.max(1, baselineWeek)} of 4)
-                </p>
+                <div className="mt-2.5 px-2.5 py-2 rounded-lg bg-primary/15">
+                  <p className="text-[11px] text-primary leading-snug">
+                    Your baseline locks after 4 weekly scans ({Math.max(1, baselineWeek)} of 4)
+                  </p>
+                </div>
               ) : (
-                <p className="text-[10px] text-white/60 mt-2">Trend {vitality.trend} · {vitality.confidence} confidence</p>
+                <p className="text-[10px] text-muted-foreground mt-1">Trend {vitality.trend} · {vitality.confidence} confidence</p>
               )}
             </div>
           </button>
         </div>
 
         {/* 3 pillar tiles */}
-        <div className="px-5 pb-4 grid grid-cols-3 gap-2">
+        <div className="px-5 pb-3 grid grid-cols-3 gap-2">
           {[pillars.energy, pillars.recovery, pillars.stress].map((p) => {
             const tk = zoneToken(p.zone);
             const shortName = p.id === "stress-nervous" ? "Stress & NS" : p.name;
-            const tone = tk === "success" ? "hsl(var(--e4l-teal))" : tk === "warning" ? "hsl(var(--e4l-amber))" : "hsl(var(--e4l-ember))";
             return (
               <button
                 key={p.id}
                 onClick={() => navigate(`/pillar/${p.id}`)}
-                className="e4l-card relative overflow-hidden px-2 py-3 text-center active:scale-[0.98] transition-transform"
+                className={`relative overflow-hidden rounded-xl px-2 py-2.5 text-center active:scale-[0.98] transition-transform ${ZONE_TILE_BG[tk]}`}
               >
                 {p.id === "recovery" && (
                   <span aria-hidden className="absolute left-0 top-0 bottom-0 w-1 flex flex-col">
-                    <span className="flex-1" style={{ background: "hsl(var(--e4l-teal))" }} />
-                    <span className="flex-1" style={{ background: "hsl(var(--e4l-ember))" }} />
+                    <span className="flex-1 bg-success" />
+                    <span className="flex-1 bg-destructive" />
                   </span>
                 )}
-                <p className="text-[28px] font-display font-light leading-none" style={{ color: tone }}>{p.score}</p>
-                <p className="text-[11px] mt-1.5 hex-bullet">{shortName}</p>
-                <p className="label-caps mt-1" style={{ color: tone, fontSize: 9 }}>{zoneLabel(p.zone)}</p>
+                <p className={`text-[22px] font-display font-medium leading-none ${ZONE_TEXT[tk]}`}>{p.score}</p>
+                <p className="text-[10px] text-foreground/80 mt-1">{shortName}</p>
+                <p className={`text-[8px] tracking-wider mt-0.5 ${ZONE_TEXT[tk]}`}>{zoneLabel(p.zone)}</p>
               </button>
             );
           })}
@@ -216,33 +212,33 @@ const Home = () => {
 
         {/* Bioenergetic Priorities (Control) */}
         {hasScanned && (
-          <div className="px-5 pb-4">
+          <div className="px-5 pb-3">
             <button
               onClick={() => navigate("/pillar/control")}
-              className="e4l-card w-full p-4 text-left active:scale-[0.98] transition-transform"
+              className="w-full bg-card/60 border border-border/60 rounded-xl p-3.5 text-left active:scale-[0.98] transition-transform"
             >
-              <div className="flex items-start justify-between mb-3 gap-2">
-                <p className="label-caps">This week's bioenergetic priorities</p>
-                <ChevronRight className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: "hsl(var(--e4l-amber))" }} />
+              <div className="flex items-start justify-between mb-2 gap-2">
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display leading-tight">This Week's Bioenergetic<br/>Priorities</p>
+                <ChevronRight className="w-3.5 h-3.5 text-muted-foreground mt-0.5 flex-shrink-0" />
               </div>
               <div className="flex items-baseline gap-2 mb-3">
-                <p className="text-2xl font-display font-light">Control</p>
-                <p className="text-2xl font-display font-light" style={{ color: "hsl(var(--e4l-amber))" }}>· {control.score}</p>
-                <span className="label-caps" style={{ color: "hsl(var(--e4l-amber))" }}>{zoneLabel(control.zone)}</span>
+                <p className="text-base font-display font-medium">Control</p>
+                <p className={`text-base font-display font-medium ${ZONE_TEXT[zoneToken(control.zone)]}`}>· {control.score}</p>
+                <span className={`text-[9px] tracking-wider ${ZONE_TEXT[zoneToken(control.zone)]}`}>{zoneLabel(control.zone)}</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {controlSubs.map((s) => {
                   const sScore = s.score ?? 0;
-                  const tone = sScore >= 75 ? "hsl(var(--e4l-teal))" : sScore >= 50 ? "hsl(var(--e4l-amber))" : "hsl(var(--e4l-ember))";
+                  const sZone: ZoneToken = sScore >= 75 ? "success" : sScore >= 50 ? "warning" : "destructive";
                   const shortName = s.name
                     .replace("Vitality & Constitution", "Vitality & Const.")
                     .replace("Detox & Elimination", "Detox & Elim.")
                     .replace("Digestion & Metabolism", "Digestion")
                     .replace("Immunity & Defence", "Immunity");
                   return (
-                    <div key={s.name} className="flex items-center justify-between border rounded px-3 py-2" style={{ borderColor: "hsl(var(--e4l-deep-earth) / 0.08)" }}>
-                      <span className="text-[12px] hex-bullet">{shortName}</span>
-                      <span className="text-sm font-mono" style={{ color: tone }}>{s.locked ? "—" : sScore}</span>
+                    <div key={s.name} className="flex items-center justify-between border border-border/60 rounded-lg px-3 py-2.5">
+                      <span className="text-xs text-foreground/90">{shortName}</span>
+                      <span className={`text-sm font-medium ${ZONE_TEXT[sZone]}`}>{s.locked ? "—" : sScore}</span>
                     </div>
                   );
                 })}
@@ -253,27 +249,25 @@ const Home = () => {
 
         {/* This Week's 5 Infoceuticals */}
         {hasScanned && (
-          <div className="px-5 pb-4">
+          <div className="px-5 pb-3">
             <div className="flex items-baseline justify-between mb-2">
-              <h3 className="text-[20px] font-display font-light">This week's 5 Infoceuticals</h3>
-              <button onClick={() => navigate("/dashboard")} className="label-caps">View all ›</button>
+              <p className="text-[13px] font-display font-medium">This week's 5 Infoceuticals</p>
+              <button onClick={() => navigate("/dashboard")} className="text-[11px] text-success">View all ›</button>
             </div>
             <div className="space-y-1.5">
               {top2.map((r, i) => (
-                <div key={r.id} className="e4l-card px-3 py-2.5 flex items-center justify-between">
+                <div key={r.id} className="bg-card/60 border border-border/60 rounded-xl px-3 py-2.5 flex items-center justify-between">
                   <div className="min-w-0">
-                    <p className="text-[13px]">
-                      <span className="font-mono text-[11px]" style={{ color: "hsl(var(--e4l-amber))" }}>0{i + 1}</span>
-                      <span className="mx-2 text-muted-foreground">·</span>
-                      {r.name}
+                    <p className="text-xs font-medium">
+                      <span className="text-muted-foreground">{i + 1} ·</span> {r.name}
                     </p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{r.rationale}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{r.rationale}</p>
                   </div>
-                  <span className="label-caps" style={{
-                    color: r.confidence === "High" ? "hsl(var(--e4l-teal))" :
-                           r.confidence === "Medium" ? "hsl(var(--e4l-amber))" :
-                           "hsl(var(--muted-foreground))"
-                  }}>
+                  <span className={`text-[9px] px-2 py-0.5 rounded-full font-medium ${
+                    r.confidence === "High" ? "bg-success/15 text-success" :
+                    r.confidence === "Medium" ? "bg-warning/15 text-warning" :
+                    "bg-muted text-muted-foreground"
+                  }`}>
                     {r.confidence}
                   </span>
                 </div>
@@ -281,131 +275,132 @@ const Home = () => {
               {more > 0 && (
                 <button
                   onClick={() => navigate("/dashboard")}
-                  className="e4l-card w-full px-3 py-2.5 flex items-center justify-between active:scale-[0.98] transition-transform"
+                  className="w-full bg-card/60 border border-border/60 rounded-xl px-3 py-2.5 flex items-center justify-between active:scale-[0.98] transition-transform"
                 >
-                  <p className="text-[12px] text-muted-foreground">+ {more} more recommendations</p>
-                  <ChevronRight className="w-4 h-4" style={{ color: "hsl(var(--e4l-amber))" }} />
+                  <p className="text-xs text-muted-foreground">+ {more} more recommendations</p>
+                  <ChevronRight className="w-3.5 h-3.5 text-success" />
                 </button>
               )}
             </div>
           </div>
         )}
 
-        {/* Today's program — impact band */}
-        <div className="px-5 pb-4">
-          <div className="impact-band rounded-md p-5">
-            <span aria-hidden className="equation-watermark" style={{ bottom: 8, left: 12, fontSize: 18 }}>
-              I = V/R
-            </span>
-            <div className="flex items-baseline justify-between mb-3 relative z-10">
-              <p className="label-caps">{isGemConnected ? "Today's GEM program" : "Today's protocol"}</p>
-              <span className="text-[11px] text-white/70 font-mono">2 / 5</span>
+        {/* Today's program — GEM-driven if connected, phone-driven otherwise */}
+        <div className="px-5 pb-3">
+          <button
+            onClick={() => navigate(isGemConnected ? "/correct" : "/learn")}
+            className="w-full text-left rounded-2xl p-3.5 border border-success/30 active:scale-[0.98] transition-transform"
+            style={{ background: "linear-gradient(135deg, hsl(var(--success) / 0.15), hsl(var(--success) / 0.05))" }}
+          >
+            <div className="flex items-baseline justify-between mb-2.5">
+              <p className="text-[13px] font-display font-medium">
+                {isGemConnected ? "Today's GEM program" : "Today's protocol"}
+              </p>
+              <span className="text-[10px] text-success font-medium">2 of 5 done</span>
             </div>
-            <div className="h-px w-12 mb-4" style={{ background: "hsl(var(--e4l-amber))" }} />
-            <div className="flex items-center justify-between gap-3 relative z-10">
+            <div className="h-1 bg-muted rounded-full mb-2.5 overflow-hidden">
+              <div className="h-full bg-success rounded-full" style={{ width: "40%" }} />
+            </div>
+            <div className="flex items-center justify-between">
               <div>
-                <p className="text-[18px] font-display font-light text-white leading-tight">
-                  {isGemConnected ? "Liver Driver" : "4-min vagal breath"}
+                <p className="text-[11px] text-foreground/80">
+                  {isGemConnected ? "Next: Liver Driver" : "Next: 4-min vagal breath"}
                 </p>
-                <p className="text-[11px] text-white/60 mt-1">
+                <p className="text-[10px] text-muted-foreground mt-0.5">
                   {isGemConnected ? "Scheduled 6:30 PM · in 2h" : "Guided · phone only"}
                 </p>
               </div>
-              <button
-                onClick={() => navigate(isGemConnected ? "/correct" : "/learn")}
-                className="cta-rect"
-              >
-                Start now
-              </button>
+              <span className="bg-success text-success-foreground px-4 py-2.5 rounded-lg text-[12px] font-medium leading-tight whitespace-pre-line text-center">
+                {"Start\nnow"}
+              </span>
             </div>
-          </div>
+            {!isGemConnected && (
+              <div className="mt-3 pt-2.5 border-t border-success/20 flex items-center justify-between">
+                <p className="text-[10px] text-muted-foreground">Add a GEM for hardware-driven protocols</p>
+                <ChevronRight className="w-3.5 h-3.5 text-success" />
+              </div>
+            )}
+          </button>
         </div>
 
         {/* Ask the Coach */}
-        <div className="px-5 pb-4">
+        <div className="px-5 pb-3">
           <button
             onClick={() => navigate("/ai-coach")}
-            className="e4l-card w-full px-4 py-3.5 flex items-center gap-3 text-left active:scale-[0.98] transition-transform"
-            style={{ borderLeft: "3px solid hsl(var(--e4l-plum))" }}
+            className="w-full rounded-xl px-3.5 py-3 flex items-center gap-3 border border-primary/30 bg-primary/10 active:scale-[0.98] transition-transform text-left"
           >
-            <div className="w-9 h-9 flex items-center justify-center flex-shrink-0" style={{ background: "hsl(var(--e4l-plum) / 0.1)" }}>
-              <MessageSquare className="w-4 h-4" style={{ color: "hsl(var(--e4l-plum))" }} />
+            <div className="w-9 h-9 rounded-full bg-primary/25 flex items-center justify-center flex-shrink-0">
+              <MessageSquare className="w-4 h-4 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="label-caps" style={{ color: "hsl(var(--e4l-plum))" }}>Ask the Coach</p>
-              <p className="text-[13px] font-display font-light mt-0.5">Want to talk through this week's liver focus?</p>
+              <p className="text-xs font-medium">Ask the Coach</p>
+              <p className="text-[11px] text-primary/80 mt-0.5 leading-snug">Want to talk through this week's liver focus?</p>
             </div>
-            <ChevronRight className="w-4 h-4" style={{ color: "hsl(var(--e4l-amber))" }} />
+            <ChevronRight className="w-4 h-4 text-primary" />
           </button>
         </div>
 
         {/* Weekly scan streak */}
-        <div className="px-5 pb-4">
-          <div className="e4l-card px-4 py-3.5">
-            <div className="flex items-baseline justify-between mb-3">
-              <p className="label-caps">Weekly scan streak</p>
-              <span className="text-2xl font-display font-light" style={{ color: "hsl(var(--e4l-amber))" }}>
-                {Math.max(1, baselineWeek)}<span className="text-[11px] text-muted-foreground ml-1">/ 4</span>
-              </span>
+        <div className="px-5 pb-3">
+          <div className="bg-card/60 border border-border/60 rounded-xl px-3.5 py-3">
+            <div className="flex items-baseline justify-between mb-2.5">
+              <p className="text-xs font-medium">Weekly scan streak</p>
+              <span className="text-[11px] text-warning font-medium">{Math.max(1, baselineWeek)} week{baselineWeek === 1 ? "" : "s"}</span>
             </div>
             <div className="flex gap-1 mb-2">
               {[0, 1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="flex-1 h-1 rounded-full"
-                  style={{ background: i < Math.max(1, baselineWeek) ? "hsl(var(--e4l-amber))" : "hsl(var(--e4l-deep-earth) / 0.1)" }}
+                  className={`flex-1 h-1.5 rounded-full ${i < Math.max(1, baselineWeek) ? "bg-success" : "bg-muted"}`}
                 />
               ))}
             </div>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-[10px] text-muted-foreground leading-snug">
               Scan each week to lock your baseline by week 4. Next scan due Sunday.
             </p>
           </div>
         </div>
 
-        {/* Empty state */}
+        {/* Empty state — no scan yet */}
         {!hasScanned && (
-          <div className="px-5 pb-4">
-            <div className="e4l-card p-6 flex flex-col items-center text-center gap-4">
-              <div className="w-12 h-12 flex items-center justify-center" style={{ background: "hsl(var(--e4l-amber) / 0.15)" }}>
-                <Sparkles className="w-6 h-6" style={{ color: "hsl(var(--e4l-amber))" }} />
+          <div className="px-5 pb-3">
+            <div className="bg-card/60 border border-border/60 rounded-xl p-5 flex flex-col items-center text-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Sparkles className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <h3 className="text-xl font-display font-light">Begin your baseline</h3>
-                <p className="text-[12px] text-muted-foreground mt-1">Take your first scan to unlock weekly insights.</p>
+                <p className="text-sm font-display font-bold">No Scan Yet</p>
+                <p className="text-xs text-muted-foreground mt-1">Take your first scan to unlock your weekly insights.</p>
               </div>
-              <button onClick={() => navigate("/mirror-check")} className="cta-rect">
-                Start scanning
+              <button
+                onClick={() => navigate("/mirror-check")}
+                className="bg-primary text-primary-foreground font-display font-medium text-xs px-5 py-2.5 rounded-xl active:scale-[0.98] transition-transform"
+              >
+                <Scan className="w-3.5 h-3.5 inline mr-1.5" />
+                Start Scanning
               </button>
             </div>
           </div>
         )}
 
-        {/* Find Practitioner */}
+        {/* Find Practitioner — softened */}
         {!isPractitioner && !hasActivePractitioner && (
           <div className="px-5 pb-5">
             <button
               onClick={() => navigate("/find-practitioner")}
-              className="e4l-card w-full px-3.5 py-3 flex items-center gap-3 text-left active:scale-[0.98] transition-transform"
+              className="w-full bg-card/60 border border-border/60 rounded-xl px-3.5 py-3 flex items-center gap-3 text-left active:scale-[0.98] transition-transform"
             >
-              <div className="w-8 h-8 flex items-center justify-center flex-shrink-0" style={{ background: "hsl(var(--e4l-cream))" }}>
+              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
                 <User className="w-4 h-4 text-muted-foreground" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-display">Find a practitioner</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">Personalized support beyond the consumer tier</p>
+                <p className="text-xs font-medium">Find a practitioner</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug">Personalized support beyond the consumer tier</p>
               </div>
-              <ChevronRight className="w-4 h-4" style={{ color: "hsl(var(--e4l-amber))" }} />
+              <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
             </button>
           </div>
         )}
-
-        {/* Disclaimer */}
-        <div className="px-5 pb-4 pt-2">
-          <p className="text-[11px] text-muted-foreground leading-relaxed">
-            GEM is not intended to diagnose, treat, cure, or prevent any disease. Results may vary.
-          </p>
-        </div>
       </div>
 
       <BottomNav />
@@ -414,4 +409,3 @@ const Home = () => {
 };
 
 export default Home;
-
