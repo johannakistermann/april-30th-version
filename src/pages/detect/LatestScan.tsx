@@ -204,7 +204,7 @@ const LatestScan = () => {
             <p className="text-xs text-muted-foreground">Vitality Score</p>
             <p className="text-sm text-success font-medium mt-0.5">▲ +5 vs week 5</p>
             <p className="text-[11px] text-muted-foreground italic mt-2">
-              Voltage × Resistance Efficiency
+              Information × Voltage / Resistance
             </p>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
