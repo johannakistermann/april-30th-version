@@ -57,6 +57,13 @@ import ScanHistory from "./pages/detect/ScanHistory";
 import RecArchive from "./pages/detect/RecArchive";
 import DetectPractice from "./pages/detect/Practice";
 import TongueRetake from "./pages/detect/TongueRetake";
+import CaptureDetail from "./pages/detect/CaptureDetail";
+import VitalityBreakdown from "./pages/detect/VitalityBreakdown";
+import NotableShift from "./pages/detect/NotableShift";
+import RecDetail from "./pages/detect/RecDetail";
+import HistoryDiff from "./pages/detect/HistoryDiff";
+import RetakeTongue from "./pages/scan/RetakeTongue";
+import ShareScan from "./pages/share/ShareScan";
 
 const queryClient = new QueryClient();
 
@@ -120,6 +127,13 @@ const AppContent = () => {
       <Route path="/detect/practice" element={<Protected><DetectPractice /></Protected>} />
       <Route path="/detect/capture/tongue-retake" element={<Protected><TongueRetake /></Protected>} />
       <Route path="/detect/pillar/:pillarId" element={<Protected><PillarDetail /></Protected>} />
+      <Route path="/detect/latest/capture" element={<Protected><CaptureDetail /></Protected>} />
+      <Route path="/detect/latest/vitality" element={<Protected><VitalityBreakdown /></Protected>} />
+      <Route path="/detect/latest/notable-shift" element={<Protected><NotableShift /></Protected>} />
+      <Route path="/detect/rec/:recId" element={<Protected><RecDetail /></Protected>} />
+      <Route path="/detect/history/diff" element={<Protected><HistoryDiff /></Protected>} />
+      <Route path="/scan/retake/tongue" element={<Protected><RetakeTongue /></Protected>} />
+      <Route path="/share/scan/:scanId" element={<Protected><ShareScan /></Protected>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
