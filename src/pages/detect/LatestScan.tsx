@@ -355,6 +355,7 @@ const LatestScan = () => {
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </div>
       </section>
+      </div>
 
       <BottomNav />
     </div>
