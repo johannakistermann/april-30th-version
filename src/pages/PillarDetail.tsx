@@ -177,6 +177,12 @@ const PillarDetail = () => {
                   <span className="text-[10px] text-muted-foreground">
                     ({sub.locked ? `${baseWeightPct}% locked` : `${weightPct}%`}{redistributed ? ` · base ${baseWeightPct}%` : ""})
                   </span>
+                  {activeId === "recovery" && (() => {
+                    const n = sub.name.toLowerCase();
+                    if (/hrv/.test(n)) return <span className="px-1.5 py-0.5 rounded-md text-[9px] font-display font-semibold bg-destructive/15 text-destructive">→ Resistance</span>;
+                    if (/sleep|mitoc/.test(n)) return <span className="px-1.5 py-0.5 rounded-md text-[9px] font-display font-semibold bg-success/15 text-success">→ Voltage</span>;
+                    return null;
+                  })()}
                 </div>
                 {sub.score !== null ? (
                   <div className="flex items-center gap-1.5">
