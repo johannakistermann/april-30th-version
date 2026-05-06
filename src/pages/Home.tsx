@@ -76,9 +76,7 @@ const Home = () => {
     return "Good evening";
   };
 
-  if (isGemConnected && !localStorage.getItem("lastGemSyncDate")) {
-    localStorage.setItem("lastGemSyncDate", new Date(Date.now() - 30 * 60 * 1000).toISOString());
-  }
+  const { label: gemSyncLabel } = useGemSync();
 
   const { vitality, pillars, control, baselineRemaining, scanCount, baseline } = useVitality();
   const vitalityZoneColor = zoneToken(vitality.zone);
@@ -86,8 +84,6 @@ const Home = () => {
 
   const lastScanRaw = localStorage.getItem("lastScanDate");
   const lastScanLabel = lastScanRaw ? formatDistanceToNow(new Date(lastScanRaw), { addSuffix: true }) : "No scan yet";
-  const lastGemSync = localStorage.getItem("lastGemSyncDate");
-  const lastGemLabel = lastGemSync ? `Synced ${formatDistanceToNow(new Date(lastGemSync), { addSuffix: false })} ago` : "No readings yet";
 
   const recs = getWeeklyRecs(userId);
   const top2 = recs.slice(0, 2);
