@@ -488,6 +488,11 @@ const ProtectHub = () => {
 
           {/* Play Button */}
           <div className="fixed bottom-20 left-0 right-0 px-6 z-10">
+            {isGemConnected && (
+              <p className="text-[10px] text-muted-foreground text-center mb-1.5">
+                Auto-syncs every 15 min · {gemSyncLabel}
+              </p>
+            )}
             <button
               onClick={handlePlay}
               disabled={!hasSelections}
@@ -498,7 +503,7 @@ const ProtectHub = () => {
               }`}
             >
               <Play className="w-4 h-4" />
-              Sync to GEM device
+              Force sync now
             </button>
           </div>
         </>
