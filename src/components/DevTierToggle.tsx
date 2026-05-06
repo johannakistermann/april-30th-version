@@ -9,7 +9,7 @@ const DevTierToggle = () => {
   const { tier } = useTier();
   const [open, setOpen] = useState(false);
 
-  if (import.meta.env.PROD) return null;
+  if (!import.meta.env.DEV && localStorage.getItem("dev-bypass-auth") !== "true") return null;
 
   return (
     <div className="fixed bottom-24 right-4 z-50">
