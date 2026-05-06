@@ -38,7 +38,7 @@ const Onboarding = () => {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) navigate("/dashboard", { replace: true });
+      if (user) navigate("/home", { replace: true });
     });
   }, [navigate]);
 

@@ -125,11 +125,11 @@ const Auth = () => {
         <button
           onClick={() => {
             localStorage.setItem("dev-bypass-auth", "true");
-            navigate("/dashboard");
+            navigate("/home");
           }}
           className="text-xs text-muted-foreground/40 mx-auto hover:text-muted-foreground"
         >
-          Skip to Dashboard (dev)
+          Skip to Home (dev)
         </button>
       </div>
     </div>
