@@ -2,11 +2,13 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Zap, Heart, Moon, TrendingUp, TrendingDown, Minus, ChevronRight } from "lucide-react";
 import TopMenu from "@/components/TopMenu";
 import BottomNav from "@/components/BottomNav";
+import { useGemSync } from "@/lib/gem/syncClock";
 
 const TABS = ["Energy", "Emotions", "Sleep", "History"] as const;
 
 const GemDetect = () => {
   const navigate = useNavigate();
+  const { label: gemSyncLabel } = useGemSync();
 
   return (
     <div className="min-h-screen bg-background pb-24">
