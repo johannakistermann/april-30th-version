@@ -31,7 +31,7 @@ const ResultsLoading = () => {
           supabase.auth.getUser().then(({ data: { user } }) => {
             setTimeout(() => {
               if (user) {
-                navigate("/dashboard");
+                navigate("/home");
               } else {
                 navigate("/auth", { state: { fromScan: true } });
               }

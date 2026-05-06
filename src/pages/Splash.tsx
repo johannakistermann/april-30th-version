@@ -16,7 +16,7 @@ const Splash = () => {
 
     if (isMagicLink) {
       setState("magic-link");
-      setTimeout(() => navigate("/dashboard", { replace: true }), 2500);
+      setTimeout(() => navigate("/home", { replace: true }), 2500);
     } else {
       const decide = async () => {
         const { data: { user } } = await supabase.auth.getUser();
@@ -29,7 +29,7 @@ const Splash = () => {
             .maybeSingle();
           setDisplayName(profile?.display_name || user.email?.split("@")[0] || null);
           setState("welcome-back");
-          setTimeout(() => navigate("/dashboard", { replace: true }), 2000);
+          setTimeout(() => navigate("/home", { replace: true }), 2000);
         } else {
           setTimeout(() => navigate("/onboarding", { replace: true }), 2500);
         }
@@ -60,7 +60,7 @@ const Splash = () => {
                 Welcome to <span className="text-primary font-semibold">GEM</span>
               </p>
             </div>
-            <p className="text-muted-foreground text-sm mt-4 animate-pulse">Loading your dashboard...</p>
+            <p className="text-muted-foreground text-sm mt-4 animate-pulse">Taking you home...</p>
           </>
         )}
 
@@ -77,7 +77,7 @@ const Splash = () => {
                 THE <span className="text-primary">FIELD</span>
               </h2>
             </div>
-            <p className="text-muted-foreground text-sm mt-2 animate-pulse">Loading your dashboard...</p>
+            <p className="text-muted-foreground text-sm mt-2 animate-pulse">Taking you home...</p>
           </>
         )}
 
