@@ -194,8 +194,14 @@ const Home = () => {
               <button
                 key={p.id}
                 onClick={() => navigate(`/pillar/${p.id}`)}
-                className={`rounded-xl px-2 py-2.5 text-center active:scale-[0.98] transition-transform ${ZONE_TILE_BG[tk]}`}
+                className={`relative overflow-hidden rounded-xl px-2 py-2.5 text-center active:scale-[0.98] transition-transform ${ZONE_TILE_BG[tk]}`}
               >
+                {p.id === "recovery" && (
+                  <span aria-hidden className="absolute left-0 top-0 bottom-0 w-1 flex flex-col">
+                    <span className="flex-1 bg-success" />
+                    <span className="flex-1 bg-destructive" />
+                  </span>
+                )}
                 <p className={`text-[22px] font-display font-medium leading-none ${ZONE_TEXT[tk]}`}>{p.score}</p>
                 <p className="text-[10px] text-foreground/80 mt-1">{shortName}</p>
                 <p className={`text-[8px] tracking-wider mt-0.5 ${ZONE_TEXT[tk]}`}>{zoneLabel(p.zone)}</p>
