@@ -6,6 +6,7 @@ import TopMenu from "@/components/TopMenu";
 import BottomNav from "@/components/BottomNav";
 import FractalAnimation from "@/components/FractalAnimation";
 import GemSyncCountdown from "@/components/gem/GemSyncCountdown";
+import { useGemSync } from "@/lib/gem/syncClock";
 
 type Device = "phone" | "gem" | "mihealth" | "lightbed";
 
