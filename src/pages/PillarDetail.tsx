@@ -48,9 +48,6 @@ const PillarDetail = () => {
         </button>
         <div>
           <h1 className="text-lg font-display font-semibold">{pillar.name}</h1>
-          {activeId === "control" && (
-            <p className="text-[10px] text-primary font-display">Bioenergetic priorities — not in Vitality formula</p>
-          )}
         </div>
       </div>
 
