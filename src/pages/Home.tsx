@@ -194,103 +194,50 @@ const Home = () => {
         </div>
         <div className="px-5 pb-0 grid grid-cols-2 gap-2">
           {(() => {
-            const INFO_BG = "hsl(270 60% 70% / 0.15)";
             const INFO_FG = "hsl(270 60% 70%)";
-            const TermChip = ({ letter, tone }: { letter: "I" | "V" | "R"; tone: "info" | "v" | "r" }) => (
-              <span
-                aria-hidden="true"
-                className={`px-1.5 py-0.5 rounded-md text-[10px] font-display font-semibold ${
-                  tone === "v" ? "bg-success/15 text-success" : tone === "r" ? "bg-destructive/15 text-destructive" : ""
-                }`}
-                style={tone === "info" ? { background: INFO_BG, color: INFO_FG } : undefined}
-              >
-                {letter}
-              </span>
-            );
 
             const tiles: Array<{
               id: string;
               shortName: string;
               score: number;
               zone: "green" | "amber" | "red";
-              term: React.ReactNode;
-              isControl?: boolean;
-              isRecovery?: boolean;
+              stripe: "info" | "v" | "r" | "split";
               ariaTerm: string;
             }> = [
-              {
-                id: "control",
-                shortName: "Control",
-                score: control.score,
-                zone: control.zone,
-                term: (<><TermChip letter="I" tone="info" /><span className="text-[10px] text-foreground/70">Information</span></>),
-                isControl: true,
-                ariaTerm: "Information",
-              },
-              {
-                id: "energy",
-                shortName: pillars.energy.name,
-                score: pillars.energy.score,
-                zone: pillars.energy.zone,
-                term: (<><TermChip letter="V" tone="v" /><span className="text-[10px] text-foreground/70">Voltage</span></>),
-                ariaTerm: "Voltage",
-              },
-              {
-                id: "recovery",
-                shortName: pillars.recovery.name,
-                score: pillars.recovery.score,
-                zone: pillars.recovery.zone,
-                term: (<><TermChip letter="V" tone="v" /><TermChip letter="R" tone="r" /><span className="text-[10px] text-foreground/70">split</span></>),
-                isRecovery: true,
-                ariaTerm: "Voltage and Resistance split",
-              },
-              {
-                id: "stress-nervous",
-                shortName: "Stress & NS",
-                score: pillars.stress.score,
-                zone: pillars.stress.zone,
-                term: (<><TermChip letter="R" tone="r" /><span className="text-[10px] text-foreground/70">Resistance</span></>),
-                ariaTerm: "Resistance",
-              },
+              { id: "control", shortName: "Control", score: control.score, zone: control.zone, stripe: "info", ariaTerm: "Information" },
+              { id: "energy", shortName: pillars.energy.name, score: pillars.energy.score, zone: pillars.energy.zone, stripe: "v", ariaTerm: "Voltage" },
+              { id: "recovery", shortName: pillars.recovery.name, score: pillars.recovery.score, zone: pillars.recovery.zone, stripe: "split", ariaTerm: "Voltage and Resistance split" },
+              { id: "stress-nervous", shortName: "Stress & NS", score: pillars.stress.score, zone: pillars.stress.zone, stripe: "r", ariaTerm: "Resistance" },
             ];
 
             return tiles.map((t) => {
               const tk = zoneToken(t.zone);
               const softened = baseline.isEstablishing;
               const scoreColor = softened ? "text-foreground" : ZONE_TEXT[tk];
-              const statusColor = softened ? "text-muted-foreground" : ZONE_TEXT[tk];
-              const statusLabel = softened ? "ESTABLISHING" : zoneLabel(t.zone);
               return (
                 <button
                   key={t.id}
                   onClick={() => navigate(`/pillar/${t.id}`)}
                   aria-label={`${t.shortName} pillar, score ${t.score}, ${t.ariaTerm}. Open pillar detail.`}
-                  className={`relative overflow-hidden rounded-xl px-3 py-3 text-left active:scale-[0.98] transition-transform ${ZONE_TILE_BG[tk]}`}
+                  className={`relative overflow-hidden rounded-xl pl-4 pr-3 py-3 text-left active:scale-[0.98] transition-transform ${ZONE_TILE_BG[tk]}`}
                 >
-                  {t.isRecovery && (
-                    <span aria-hidden className="absolute left-0 top-0 bottom-0 w-1 flex flex-col">
+                  {t.stripe === "split" ? (
+                    <span aria-hidden="true" className="absolute left-0 top-0 bottom-0 w-[3px] flex flex-col">
                       <span className="flex-1 bg-success" />
                       <span className="flex-1 bg-destructive" />
                     </span>
-                  )}
-                  <div className="flex items-baseline justify-between">
-                    <p className={`text-[24px] font-display font-medium leading-none ${scoreColor}`}>{t.score}</p>
-                    <p className="text-[11px] text-foreground/80">{t.shortName}</p>
-                  </div>
-                  <div className="flex items-center gap-1.5 mt-2">
-                    {t.term}
-                  </div>
-                  <div className="flex items-end justify-between mt-2">
-                    <p className={`text-[9px] tracking-wider ${statusColor}`}>{statusLabel}</p>
-                    <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
-                  </div>
-                  {t.isControl && (
+                  ) : (
                     <span
                       aria-hidden="true"
-                      className="absolute left-1/2 -translate-x-1/2 -bottom-px h-1.5 w-10 rounded-t-md"
-                      style={{ background: INFO_FG }}
+                      className={`absolute left-0 top-0 bottom-0 w-[3px] ${
+                        t.stripe === "v" ? "bg-success" : t.stripe === "r" ? "bg-destructive" : ""
+                      }`}
+                      style={t.stripe === "info" ? { background: INFO_FG } : undefined}
                     />
                   )}
+                  <p className={`text-[28px] font-display font-medium leading-none ${scoreColor}`}>{t.score}</p>
+                  <p className="text-[11px] text-muted-foreground mt-1.5">{t.shortName}</p>
+                  <ChevronRight className="absolute bottom-2 right-2 w-3.5 h-3.5 text-muted-foreground" />
                 </button>
               );
             });
@@ -301,9 +248,14 @@ const Home = () => {
         {hasScanned ? (
           <div className="px-5 pb-3">
             <div
-              className="w-full rounded-xl rounded-t-none border border-border/60 border-t-0 p-3.5"
+              className="relative w-full rounded-xl rounded-t-none border border-border/60 border-t-0 overflow-hidden p-3.5 pl-4"
               style={{ background: "hsl(270 60% 70% / 0.06)" }}
             >
+              <span
+                aria-hidden="true"
+                className="absolute left-0 top-0 bottom-0 w-[3px]"
+                style={{ background: "hsl(270 60% 70% / 0.5)" }}
+              />
               <div className="flex items-start justify-between mb-1 gap-2">
                 <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display leading-tight">Bioenergetic Priorities</p>
                 <button
@@ -315,7 +267,7 @@ const Home = () => {
                 </button>
               </div>
               <p className="text-[10px] text-muted-foreground leading-snug mb-2.5">
-                From Control · sub-scores from voice scan, drives your recommendations
+                From Control · drives your recommendations
               </p>
               <div className="grid grid-cols-2 gap-2">
                 {controlSubs.map((s) => {
@@ -327,6 +279,7 @@ const Home = () => {
                     .replace("Digestion & Metabolism", "Digestion")
                     .replace("Immunity & Defence", "Immunity");
                   const clusterSlug = encodeURIComponent(s.name);
+                  const scoreColor = baseline.isEstablishing ? "text-foreground" : ZONE_TEXT[sZone];
                   return (
                     <button
                       key={s.name}
@@ -335,7 +288,7 @@ const Home = () => {
                       className="flex items-center justify-between border border-border/60 rounded-lg px-3 py-2.5 bg-card/40 active:scale-[0.98] transition-transform text-left"
                     >
                       <span className="text-xs text-foreground/90">{shortName}</span>
-                      <span className={`text-sm font-medium ${ZONE_TEXT[sZone]}`}>{s.locked ? "—" : sScore}</span>
+                      <span className={`text-sm font-medium ${scoreColor}`}>{s.locked ? "—" : sScore}</span>
                     </button>
                   );
                 })}
