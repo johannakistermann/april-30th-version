@@ -171,7 +171,7 @@ const Dashboard = () => {
               <p className="text-sm font-display font-semibold">Vitality Score</p>
               <p className="text-xs text-success font-display font-medium mt-0.5">▲ +5 vs last week</p>
               <p className="text-[10px] text-muted-foreground italic mt-1.5">
-                Information × Voltage / Resistance
+                Voltage / Resistance
               </p>
             </div>
           </div>
