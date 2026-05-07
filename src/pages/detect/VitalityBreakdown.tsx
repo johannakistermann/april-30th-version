@@ -117,19 +117,21 @@ const VitalityBreakdown = () => {
           <p className="text-xs text-muted-foreground leading-relaxed mt-3">
             Your Vitality reflects two things: how much energy your body is producing and storing (Voltage), and how much friction it's fighting (Resistance).
           </p>
-        </div>
 
-        {/* Section 1 — formula */}
-        <div className="px-5 mb-3">
-          <div className="glass-card p-5">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium text-center mb-4">How it's computed</p>
-            <div className="flex items-center justify-center gap-1.5 flex-wrap">
-              <Circle value={String(data.voltage)} color={TEAL} label="Voltage" />
-              <span className="text-xl font-display text-muted-foreground pb-5">/</span>
-              <Circle value={String(data.resistance)} color={RED} label="Resistance" />
-              <span className="text-xl font-display text-muted-foreground pb-5">=</span>
-              <Circle value={String(data.vitality)} color={AMBER} label="Vitality" />
+          {/* 3-up standalone scores */}
+          <div className="grid grid-cols-3 gap-2 mt-4">
+            <div className="glass-card p-3 text-center">
+              <p className="text-[9px] uppercase tracking-wider text-warning font-display font-semibold">Vitality</p>
+              <p className="text-2xl font-display font-bold text-warning leading-none mt-1.5">{data.vitality}</p>
             </div>
+            <a href="#voltage" className="glass-card p-3 text-center active:scale-[0.98] transition-transform border-success/30">
+              <p className="text-[9px] uppercase tracking-wider font-display font-semibold" style={{ color: TEAL }}>Voltage</p>
+              <p className="text-2xl font-display font-bold leading-none mt-1.5" style={{ color: TEAL }}>{data.voltage}</p>
+            </a>
+            <a href="#resistance" className="glass-card p-3 text-center active:scale-[0.98] transition-transform border-destructive/30">
+              <p className="text-[9px] uppercase tracking-wider font-display font-semibold" style={{ color: RED }}>Resistance</p>
+              <p className="text-2xl font-display font-bold leading-none mt-1.5" style={{ color: RED }}>{data.resistance}</p>
+            </a>
           </div>
         </div>
 
