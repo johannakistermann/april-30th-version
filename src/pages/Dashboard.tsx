@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import {
   ChevronRight,
-  Scan,
   Zap,
   Heart,
   Brain,
@@ -86,13 +85,6 @@ const Dashboard = () => {
           </p>
           <p className="text-lg font-display font-semibold mt-1">Sunday, 10 May</p>
           <p className="text-xs text-muted-foreground mt-0.5">Last scanned 17 minutes ago</p>
-          <button
-            onClick={() => navigate("/scan")}
-            className="mt-3 w-full bg-primary text-primary-foreground font-display font-medium text-sm py-3 rounded-xl hover:bg-primary/90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-          >
-            <Scan className="w-4 h-4" />
-            Start scan
-          </button>
         </div>
       </div>
 
