@@ -28,19 +28,6 @@ const data = {
 const zoneClass = (z: "green" | "amber" | "red") =>
   z === "green" ? "text-success" : z === "amber" ? "text-warning" : "text-destructive";
 
-const Circle = ({ value, sub, color, label }: { value: string; sub?: string; color: string; label: string }) => (
-  <div className="flex flex-col items-center gap-2">
-    <div
-      className="w-16 h-16 rounded-full flex flex-col items-center justify-center border-2"
-      style={{ borderColor: color, color, background: `${color.replace(")", " / 0.08)")}` }}
-    >
-      <span className="text-base font-display font-semibold leading-none">{value}</span>
-      {sub && <span className="text-[8px] text-muted-foreground mt-0.5">{sub}</span>}
-    </div>
-    <span className="text-[10px] text-muted-foreground uppercase tracking-wide">{label}</span>
-  </div>
-);
-
 const PillarRow = ({
   label, subtitle, score, zone, onClick,
 }: { label: string; subtitle: string; score: number; zone: "green" | "amber" | "red"; onClick: () => void }) => (
