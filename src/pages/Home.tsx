@@ -160,17 +160,15 @@ const Home = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-base font-display font-medium">Vitality Score</p>
-              <p className="text-xs text-muted-foreground mt-1 leading-snug">Information × Voltage / Resistance</p>
-              {/* I × V / R contribution chips */}
-              <div className="flex items-center gap-1.5 mt-2" aria-hidden="true">
-                <span
-                  className="px-1.5 py-0.5 rounded-md text-[10px] font-display font-semibold"
-                  style={{ background: "hsl(270 60% 70% / 0.15)", color: "hsl(270 60% 70%)" }}
-                >I</span>
-                <span className="text-[10px] text-muted-foreground">×</span>
-                <span className="px-1.5 py-0.5 rounded-md text-[10px] font-display font-semibold bg-success/15 text-success">V</span>
-                <span className="text-[10px] text-muted-foreground">/</span>
-                <span className="px-1.5 py-0.5 rounded-md text-[10px] font-display font-semibold bg-destructive/15 text-destructive">R</span>
+              <div className="grid grid-cols-2 gap-1.5 mt-2">
+                <div className="rounded-md px-2 py-1.5 bg-success/10 border border-success/30">
+                  <p className="text-[9px] uppercase tracking-wider text-success font-display font-semibold leading-none">Voltage</p>
+                  <p className="text-base font-display font-bold text-success leading-none mt-1">{vitality.voltage}</p>
+                </div>
+                <div className="rounded-md px-2 py-1.5 bg-destructive/10 border border-destructive/30">
+                  <p className="text-[9px] uppercase tracking-wider text-destructive font-display font-semibold leading-none">Resistance</p>
+                  <p className="text-base font-display font-bold text-destructive leading-none mt-1">{100 - Math.round(vitality.resistanceEfficiency * 100)}</p>
+                </div>
               </div>
               {baseline.isEstablishing ? (
                 <div className="mt-2.5 px-2.5 py-2 rounded-lg bg-primary/15">
@@ -182,7 +180,7 @@ const Home = () => {
                   </p>
                 </div>
               ) : (
-                <p className="text-[10px] text-muted-foreground mt-1">Trend {vitality.trend} · {vitality.confidence} confidence</p>
+                <p className="text-[10px] text-muted-foreground mt-2">Trend {vitality.trend} · {vitality.confidence} confidence</p>
               )}
             </div>
           </button>

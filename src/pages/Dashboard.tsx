@@ -170,12 +170,35 @@ const Dashboard = () => {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-display font-semibold">Vitality Score</p>
               <p className="text-xs text-success font-display font-medium mt-0.5">▲ +5 vs last week</p>
-              <p className="text-[10px] text-muted-foreground italic mt-1.5">
-                Voltage / Resistance
-              </p>
             </div>
           </div>
         </button>
+
+        {/* Voltage & Resistance — standalone scores */}
+        <div className="grid grid-cols-2 gap-2 mt-2">
+          <button
+            aria-label="Open Voltage detail — score 73"
+            onClick={() => navigate("/detect/latest/vitality#voltage")}
+            className="glass-card p-3 text-left active:scale-[0.98] transition-transform border-success/30"
+          >
+            <p className="text-[10px] uppercase tracking-wider text-success font-display font-medium">Voltage</p>
+            <div className="flex items-baseline gap-1.5 mt-1">
+              <span className="text-2xl font-display font-bold text-success leading-none">73</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-1 leading-snug">Energy & repair</p>
+          </button>
+          <button
+            aria-label="Open Resistance detail — score 16"
+            onClick={() => navigate("/detect/latest/vitality#resistance")}
+            className="glass-card p-3 text-left active:scale-[0.98] transition-transform border-destructive/30"
+          >
+            <p className="text-[10px] uppercase tracking-wider text-destructive font-display font-medium">Resistance</p>
+            <div className="flex items-baseline gap-1.5 mt-1">
+              <span className="text-2xl font-display font-bold text-destructive leading-none">16</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-1 leading-snug">Friction & load</p>
+          </button>
+        </div>
 
         {/* Notable shift */}
         <button

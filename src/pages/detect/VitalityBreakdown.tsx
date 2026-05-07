@@ -28,19 +28,6 @@ const data = {
 const zoneClass = (z: "green" | "amber" | "red") =>
   z === "green" ? "text-success" : z === "amber" ? "text-warning" : "text-destructive";
 
-const Circle = ({ value, sub, color, label }: { value: string; sub?: string; color: string; label: string }) => (
-  <div className="flex flex-col items-center gap-2">
-    <div
-      className="w-16 h-16 rounded-full flex flex-col items-center justify-center border-2"
-      style={{ borderColor: color, color, background: `${color.replace(")", " / 0.08)")}` }}
-    >
-      <span className="text-base font-display font-semibold leading-none">{value}</span>
-      {sub && <span className="text-[8px] text-muted-foreground mt-0.5">{sub}</span>}
-    </div>
-    <span className="text-[10px] text-muted-foreground uppercase tracking-wide">{label}</span>
-  </div>
-);
-
 const PillarRow = ({
   label, subtitle, score, zone, onClick,
 }: { label: string; subtitle: string; score: number; zone: "green" | "amber" | "red"; onClick: () => void }) => (
@@ -117,24 +104,26 @@ const VitalityBreakdown = () => {
           <p className="text-xs text-muted-foreground leading-relaxed mt-3">
             Your Vitality reflects two things: how much energy your body is producing and storing (Voltage), and how much friction it's fighting (Resistance).
           </p>
-        </div>
 
-        {/* Section 1 — formula */}
-        <div className="px-5 mb-3">
-          <div className="glass-card p-5">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium text-center mb-4">How it's computed</p>
-            <div className="flex items-center justify-center gap-1.5 flex-wrap">
-              <Circle value={String(data.voltage)} color={TEAL} label="Voltage" />
-              <span className="text-xl font-display text-muted-foreground pb-5">/</span>
-              <Circle value={String(data.resistance)} color={RED} label="Resistance" />
-              <span className="text-xl font-display text-muted-foreground pb-5">=</span>
-              <Circle value={String(data.vitality)} color={AMBER} label="Vitality" />
+          {/* 3-up standalone scores */}
+          <div className="grid grid-cols-3 gap-2 mt-4">
+            <div className="glass-card p-3 text-center">
+              <p className="text-[9px] uppercase tracking-wider text-warning font-display font-semibold">Vitality</p>
+              <p className="text-2xl font-display font-bold text-warning leading-none mt-1.5">{data.vitality}</p>
             </div>
+            <a href="#voltage" className="glass-card p-3 text-center active:scale-[0.98] transition-transform border-success/30">
+              <p className="text-[9px] uppercase tracking-wider font-display font-semibold" style={{ color: TEAL }}>Voltage</p>
+              <p className="text-2xl font-display font-bold leading-none mt-1.5" style={{ color: TEAL }}>{data.voltage}</p>
+            </a>
+            <a href="#resistance" className="glass-card p-3 text-center active:scale-[0.98] transition-transform border-destructive/30">
+              <p className="text-[9px] uppercase tracking-wider font-display font-semibold" style={{ color: RED }}>Resistance</p>
+              <p className="text-2xl font-display font-bold leading-none mt-1.5" style={{ color: RED }}>{data.resistance}</p>
+            </a>
           </div>
         </div>
 
         {/* Section 2 — Voltage */}
-        <div className="px-5 mb-3">
+        <div id="voltage" className="px-5 mb-3 scroll-mt-20">
           <div className="glass-card p-5">
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
@@ -155,7 +144,7 @@ const VitalityBreakdown = () => {
         </div>
 
         {/* Section 3 — Resistance */}
-        <div className="px-5 mb-3">
+        <div id="resistance" className="px-5 mb-3 scroll-mt-20">
           <div className="glass-card p-5">
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
