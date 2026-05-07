@@ -4,31 +4,12 @@ import {
   ChevronRight,
   MoreHorizontal,
   AlertTriangle,
-  CheckCircle2,
-  Mic,
-  Wind,
-  Smile,
-  Activity,
   GraduationCap,
   MessageCircle,
 } from "lucide-react";
 import TopMenu from "@/components/TopMenu";
 import BottomNav from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
-
-type CleanModality = {
-  id: string;
-  name: string;
-  subtitle: string;
-  Icon: React.ComponentType<{ className?: string }>;
-};
-
-const CLEAN: CleanModality[] = [
-  { id: "voice", name: "Voice resonance", subtitle: "Quiet environment · clear voice signal", Icon: Mic },
-  { id: "breath", name: "Breath capacity", subtitle: "Full inhale captured · steady exhale", Icon: Wind },
-  { id: "face", name: "Face sweep", subtitle: "Even lighting · 8 features detected", Icon: Smile },
-  { id: "gem", name: "GEM HRV", subtitle: "Continuous overnight tracking · 7h coverage", Icon: Activity },
-];
 
 // W1..W6 segments per modality. 'g' clean, 'a' amber, 'r' red. Order: voice, breath, face, tongue, gem.
 const HISTORY: ("g" | "a" | "r")[][] = [
