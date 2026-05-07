@@ -4,31 +4,12 @@ import {
   ChevronRight,
   MoreHorizontal,
   AlertTriangle,
-  CheckCircle2,
-  Mic,
-  Wind,
-  Smile,
-  Activity,
   GraduationCap,
   MessageCircle,
 } from "lucide-react";
 import TopMenu from "@/components/TopMenu";
 import BottomNav from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
-
-type CleanModality = {
-  id: string;
-  name: string;
-  subtitle: string;
-  Icon: React.ComponentType<{ className?: string }>;
-};
-
-const CLEAN: CleanModality[] = [
-  { id: "voice", name: "Voice resonance", subtitle: "Quiet environment · clear voice signal", Icon: Mic },
-  { id: "breath", name: "Breath capacity", subtitle: "Full inhale captured · steady exhale", Icon: Wind },
-  { id: "face", name: "Face sweep", subtitle: "Even lighting · 8 features detected", Icon: Smile },
-  { id: "gem", name: "GEM HRV", subtitle: "Continuous overnight tracking · 7h coverage", Icon: Activity },
-];
 
 // W1..W6 segments per modality. 'g' clean, 'a' amber, 'r' red. Order: voice, breath, face, tongue, gem.
 const HISTORY: ("g" | "a" | "r")[][] = [
@@ -149,32 +130,10 @@ const CaptureDetail = () => {
             </div>
           </div>
 
-          {/* Clean modality cards */}
-          <div className="space-y-2">
-            {CLEAN.map(({ id, name, subtitle, Icon }) => (
-              <button
-                key={id}
-                onClick={() => navigate(`/detect/latest/capture/${id}`)}
-                role="button"
-                aria-label={`${name}: clean capture, view details`}
-                className="glass-card p-3 w-full flex items-center gap-3 text-left active:scale-[0.98] transition-transform"
-              >
-                <div className="w-8 h-8 rounded-md bg-success/15 flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="w-4 h-4 text-success" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium truncate">{name}</span>
-                    <span className="text-[10px] font-display font-medium uppercase tracking-wider text-success bg-success/15 rounded-full px-2 py-0.5">
-                      Clean
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground truncate">{subtitle}</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-              </button>
-            ))}
-          </div>
+          {/* Clean summary */}
+          <p className="text-xs text-muted-foreground mt-3 px-1 leading-relaxed">
+            Voice, Breath, Face, and GEM HRV all captured cleanly.
+          </p>
         </section>
 
         {/* Capture health over time */}
