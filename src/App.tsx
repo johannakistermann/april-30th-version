@@ -129,6 +129,7 @@ const AppContent = () => {
       <Route path="/detect/capture/tongue-retake" element={<Protected><TongueRetake /></Protected>} />
       <Route path="/detect/pillar/:pillarId" element={<Protected><PillarDetail /></Protected>} />
       <Route path="/detect/latest/capture" element={<Protected><CaptureDetail /></Protected>} />
+      <Route path="/detect/latest/capture/:modality" element={<Protected><CaptureDetail /></Protected>} />
       <Route path="/detect/latest/vitality" element={<Protected><VitalityBreakdown /></Protected>} />
       <Route path="/detect/latest/notable-shift" element={<Protected><NotableShift /></Protected>} />
       <Route path="/detect/rec/:recId" element={<Protected><RecDetail /></Protected>} />
