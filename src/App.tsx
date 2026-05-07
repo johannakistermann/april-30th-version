@@ -121,7 +121,7 @@ const AppContent = () => {
       <Route path="/my-practitioner" element={<Protected><MyPractitioner /></Protected>} />
       <Route path="/find-practitioner" element={<Protected><FindPractitioner /></Protected>} />
       <Route path="/subscription" element={<Protected><Subscription /></Protected>} />
-      <Route path="/detect/latest" element={<Protected><LatestScan /></Protected>} />
+      <Route path="/detect/latest" element={<Navigate to="/dashboard" replace />} />
       <Route path="/detect/trends" element={<Protected><Trends /></Protected>} />
       <Route path="/detect/history" element={<Protected><ScanHistory /></Protected>} />
       <Route path="/detect/recs" element={<Protected><RecArchive /></Protected>} />
