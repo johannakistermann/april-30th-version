@@ -177,6 +177,9 @@ const Home = () => {
                   <p className="text-[11px] text-primary leading-snug">
                     Your baseline locks after 4 weekly scans ({Math.max(1, baselineWeek)} of 4)
                   </p>
+                  <p className="text-[10px] text-primary/75 leading-snug mt-1">
+                    Pillars firm up after 4 weekly scans · acute change detection unlocks at week 4
+                  </p>
                 </div>
               ) : (
                 <p className="text-[10px] text-muted-foreground mt-1">Trend {vitality.trend} · {vitality.confidence} confidence</p>
