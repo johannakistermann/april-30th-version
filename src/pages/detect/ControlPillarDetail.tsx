@@ -1,7 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ChevronRight, MessageSquare, ChevronDown, MoreVertical } from "lucide-react";
+import { ArrowLeft, ChevronRight, MessageSquare, ChevronDown, MoreVertical, Gauge, Zap, Heart, Brain } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+
+const PILLAR_NAV = [
+  { id: "control", label: "Control", icon: Gauge },
+  { id: "energy", label: "Energy", icon: Zap },
+  { id: "recovery", label: "Recovery", icon: Heart },
+  { id: "stress-nervous", label: "Stress", icon: Brain },
+] as const;
 
 const PURPLE = "hsl(270 60% 70%)";
 
