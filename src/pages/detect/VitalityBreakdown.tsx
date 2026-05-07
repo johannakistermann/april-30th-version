@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, MoreVertical, ChevronRight, MessageSquare, TrendingUp } from "lucide-react";
 
 const TEAL = "hsl(var(--success))";
-const PURPLE = "hsl(270 60% 70%)";
 const AMBER = "hsl(var(--warning))";
 const RED = "hsl(var(--destructive))";
 
@@ -11,7 +10,6 @@ const data = {
   vitality: 62,
   zone: "AMBER",
   delta: 5,
-  information: { multiplier: 1.04, controlScore: 70, constitutional: 68, crossModal: 73 },
   voltage: 73,
   resistance: 16, // = 100 - stressCombined
   pillars: {
@@ -22,9 +20,8 @@ const data = {
   },
   trend: {
     weeks: ["W1", "W2", "W3", "W4", "W5", "W6"],
-    vitality:    [55, 58, 60, 57, 57, 62],
-    voltage:     [65, 67, 70, 70, 71, 73],
-    information: [0.97, 0.99, 1.00, 1.01, 1.02, 1.04],
+    vitality: [55, 58, 60, 57, 57, 62],
+    voltage:  [65, 67, 70, 70, 71, 73],
   },
 };
 
@@ -70,8 +67,6 @@ const TrendChart = () => {
   const yMin = 40, yMax = 100;
   const x = (i: number) => PAD_L + (innerW * i) / (data.trend.weeks.length - 1);
   const y = (v: number) => PAD_T + innerH * (1 - (v - yMin) / (yMax - yMin));
-  // secondary axis 0.9 → 1.1
-  const yI = (v: number) => PAD_T + innerH * (1 - (v - 0.9) / 0.2);
   const path = (vals: number[], yFn: (v: number) => number) =>
     vals.map((v, i) => `${i === 0 ? "M" : "L"}${x(i)},${yFn(v)}`).join(" ");
 
@@ -81,7 +76,6 @@ const TrendChart = () => {
         <line key={g} x1={PAD_L} x2={W - PAD_R} y1={y(g)} y2={y(g)} stroke="hsl(var(--border))" strokeWidth={0.5} strokeDasharray="2 3" />
       ))}
       <path d={path(data.trend.voltage, y)} fill="none" stroke={TEAL} strokeWidth={1.5} opacity={0.7} />
-      <path d={path(data.trend.information, yI)} fill="none" stroke={PURPLE} strokeWidth={1.5} strokeDasharray="4 3" />
       <path d={path(data.trend.vitality, y)} fill="none" stroke={AMBER} strokeWidth={2.5} />
       <circle cx={x(data.trend.weeks.length - 1)} cy={y(data.trend.vitality.at(-1)!)} r={4} fill={AMBER} stroke="hsl(var(--background))" strokeWidth={1.5} />
       {data.trend.weeks.map((w, i) => (
@@ -121,7 +115,7 @@ const VitalityBreakdown = () => {
             <span className="text-xs font-display font-medium text-success">▲ +{data.delta} vs week {data.week - 1}</span>
           </div>
           <p className="text-xs text-muted-foreground leading-relaxed mt-3">
-            Your Vitality reflects three things: how clearly your body's signaling is operating (Information), how much energy your body is producing and storing (Voltage), and how much friction it's fighting (Resistance).
+            Your Vitality reflects two things: how much energy your body is producing and storing (Voltage), and how much friction it's fighting (Resistance).
           </p>
         </div>
 
@@ -130,57 +124,16 @@ const VitalityBreakdown = () => {
           <div className="glass-card p-5">
             <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium text-center mb-4">How it's computed</p>
             <div className="flex items-center justify-center gap-1.5 flex-wrap">
-              <Circle value={data.information.multiplier.toFixed(2)} sub={`Control ${data.information.controlScore}`} color={PURPLE} label="Information" />
-              <span className="text-xl font-display text-muted-foreground pb-5">×</span>
               <Circle value={String(data.voltage)} color={TEAL} label="Voltage" />
               <span className="text-xl font-display text-muted-foreground pb-5">/</span>
               <Circle value={String(data.resistance)} color={RED} label="Resistance" />
               <span className="text-xl font-display text-muted-foreground pb-5">=</span>
               <Circle value={String(data.vitality)} color={AMBER} label="Vitality" />
             </div>
-            <p className="text-[11px] text-muted-foreground leading-relaxed mt-4">
-              Information is how clearly your body's signaling system is operating — read from constitutional patterns in your tongue and face. It modulates Vitality by ±10% depending on coherence.
-            </p>
           </div>
         </div>
 
-        {/* Section 2 — Information */}
-        <div className="px-5 mb-3">
-          <div className="glass-card p-5">
-            <div className="flex items-start justify-between mb-1">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full" style={{ background: PURPLE }} />
-                <h2 className="text-sm font-display font-medium">Information</h2>
-              </div>
-              <div className="flex flex-col items-end">
-                <span className="text-2xl font-display font-medium" style={{ color: PURPLE }}>{data.information.multiplier.toFixed(2)} ×</span>
-                <span className="text-[10px] text-muted-foreground">Control {data.information.controlScore}</span>
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground leading-relaxed mb-4">
-              How clearly your body's signaling is operating. Built from constitutional patterns in tongue and face — features that change slowly and reflect the coherence of your control system.
-            </p>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-2">Fed by 2 components</p>
-            <div className="space-y-2">
-              <PillarRow
-                label="Constitutional Pattern (60%)"
-                subtitle="Tongue body, cracking, swelling · face nasolabial, liver line, FaceAge, Frank's sign"
-                score={data.information.constitutional}
-                zone="amber"
-                onClick={() => navigate("/detect/pillar/control")}
-              />
-              <PillarRow
-                label="Cross-Modal Agreement (40%)"
-                subtitle="How much tongue and face tell the same story"
-                score={data.information.crossModal}
-                zone="amber"
-                onClick={() => navigate("/detect/pillar/control")}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Section 3 — Voltage */}
+        {/* Section 2 — Voltage */}
         <div className="px-5 mb-3">
           <div className="glass-card p-5">
             <div className="flex items-center justify-between mb-1">
@@ -201,7 +154,7 @@ const VitalityBreakdown = () => {
           </div>
         </div>
 
-        {/* Section 4 — Resistance */}
+        {/* Section 3 — Resistance */}
         <div className="px-5 mb-3">
           <div className="glass-card p-5">
             <div className="flex items-center justify-between mb-1">
@@ -222,12 +175,12 @@ const VitalityBreakdown = () => {
           </div>
         </div>
 
-        {/* Section 5 — 6-week trend */}
+        {/* Section 4 — 6-week trend */}
         <div className="px-5 mb-4">
           <div className="flex items-center justify-between mb-2">
             <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">6-week trend</p>
             <button
-              onClick={() => navigate("/detect/trends?series=vitality,voltage,information")}
+              onClick={() => navigate("/detect/trends?series=vitality,voltage")}
               className="text-xs text-primary hover:underline flex items-center gap-1"
               aria-label="Open in Trends"
             >
@@ -245,15 +198,11 @@ const VitalityBreakdown = () => {
                 <span className="w-3 h-px" style={{ background: TEAL, opacity: 0.7 }} />
                 <span className="text-[10px] text-muted-foreground">Voltage</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <svg width="12" height="2"><line x1="0" y1="1" x2="12" y2="1" stroke={PURPLE} strokeDasharray="3 2" /></svg>
-                <span className="text-[10px] text-muted-foreground">Information (0.9–1.1)</span>
-              </div>
             </div>
           </div>
         </div>
 
-        {/* Section 6 — auto insight */}
+        {/* Section 5 — auto insight */}
         <div className="px-5 mb-4">
           <div className="glass-card p-4 border-success/30" style={{ background: "hsl(var(--success) / 0.06)" }}>
             <div className="flex items-center gap-2 mb-1.5">
@@ -261,25 +210,25 @@ const VitalityBreakdown = () => {
               <p className="text-sm font-display font-semibold">What's driving this week's score</p>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Your Voltage rose to {data.voltage} (Energy is strong, Recovery softened on the sleep side), and your Resistance held at {data.resistance}. Your Information multiplier of {data.information.multiplier.toFixed(2)} reflects coherent signaling — your tongue and face show consistent constitutional patterns. Net Vitality up {data.delta} points.
+              Your Voltage rose to {data.voltage} (Energy is strong, Recovery softened on the sleep side), and your Resistance held at {data.resistance}. Net Vitality up {data.delta} points.
             </p>
           </div>
         </div>
 
-        {/* Section 7 — Coach prompt */}
+        {/* Section 6 — Coach prompt */}
         <div className="px-5">
           <button
             onClick={() => navigate("/ai-coach?context=vitality-breakdown")}
             role="button"
             tabIndex={0}
-            aria-label="Ask Coach about Information, Voltage, or Resistance"
+            aria-label="Ask Coach about Voltage or Resistance"
             className="w-full glass-card p-3 flex items-center gap-3 active:scale-[0.98] transition-transform text-left hover:border-primary/30"
             style={{ background: "hsl(var(--info) / 0.08)" }}
           >
             <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "hsl(var(--info) / 0.18)" }}>
               <MessageSquare className="w-4 h-4" style={{ color: "hsl(var(--info))" }} />
             </div>
-            <span className="flex-1 text-sm font-display font-medium">Ask Coach about Information, Voltage, or Resistance</span>
+            <span className="flex-1 text-sm font-display font-medium">Ask Coach about Voltage or Resistance</span>
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
