@@ -1,66 +1,48 @@
-## Home page density refinements (v5.4 delta)
+# Merge Detect Dashboard with Latest Scan
 
-All edits live in `src/pages/Home.tsx`. No tokens, routes, or scoring logic change. Existing Information purple (`hsl(270 60% 70%)`), `success` (Voltage/teal), and `destructive` (Resistance/red) tokens carry the new stripe colors.
+`/dashboard` (Detect) and `/detect/latest` (Latest Scan) overlap heavily — both show Vitality, the 4 pillars, capture quality, and a coach prompt. This plan consolidates them into a single Detect screen at `/dashboard`, deprecating the separate Latest Scan route.
 
-### 1. Strip down each pillar tile (lines ~195–298)
+## New unified Detect page (`/dashboard`)
 
-Inside each of the four pillar tiles, remove:
+Replace the current `Dashboard.tsx` body with a merged layout. Order, top → bottom:
 
-- the equation-term chip (`<TermChip>`)
-- the equation-term word ("Information" / "Voltage" / "Resistance" / "split")
-- the `ESTABLISHING` / zone status label
+1. **Header** — `Detect` title + "Week 6 · Sun 3 May · 9:42 AM · captured 17 min ago" subtitle (from LatestScan's page header, replacing the generic "Tap any card below" copy).
 
-Replace the existing left-edge Recovery split bar (`w-1`) with a unified left-edge stripe pattern applied to **every** tile:
+2. **Vitality hero** — Larger version of the current dashboard hero. Keep:
+   - Circular gauge (62, Amber)
+   - "Week 6", "▲ +5 vs last week"
+   - Notable shift one-liner (Recovery dipped 3 · Liver → Kidney)
+   - "I × V / R" italic caption (from LatestScan)
+   - Tap → `/detect/latest/vitality` (Vitality Breakdown), with a secondary "Notable shift ›" link → `/detect/latest/notable-shift`.
 
-- Control: solid Information purple (`hsl(270 60% 70%)`)
-- Energy: solid `bg-success` (Voltage)
-- Recovery: top half `bg-success`, bottom half `bg-destructive`, hard transition (keep current split implementation, just standardized to ~3px / `w-[3px]`)
-- Stress & NS: solid `bg-destructive` (Resistance)
+3. **Capture quality strip** — From LatestScan: 5-column Voice/Breath/Face/Tongue/GEM check icons + the warning row ("Tongue lighting was uneven · Retake ›"). Replaces the dashboard's separate "Last capture" card and absorbs its retake CTA. "Details ›" → `/detect/latest/capture`.
 
-Also drop the bottom-center Control connector tab (lines 287–293) — the matching purple stripe on the Priorities card below now does that visual job.
+4. **Explore by pillar** — Keep the dashboard's 2×2 pillar grid (with sparklines) as the canonical pillar surface. Drop LatestScan's redundant pillar grid (its delta + term-chip data is preserved by adding a small delta indicator under each sparkline; term identity is already conveyed via the Home page stripes and pillar detail screens, so we don't reintroduce term chips here).
 
-Tile interior collapses to:
+5. **Your 5 Infoceuticals** — Port the full recs list from LatestScan (5 rows, witness subtitle, High/Medium confidence chip). Each → `/detect/rec/:id`.
 
-- Score: large, `font-display font-medium`, `text-foreground` during baseline, `ZONE_TEXT[tk]` after baseline locks
-- Pillar short name: smaller, `text-muted-foreground`, beneath the score
-- Chevron: stays bottom-right corner
-- Whole `<button>` remains the press target with `active:scale-[0.98]` and existing `aria-label`
+6. **Explore over time** — Keep the dashboard's three rows: Trends, Scan history, Recommendation archive.
 
-Tile background tint stays as-is (`ZONE_TILE_BG[tk]`).
+7. **Quick actions** — From LatestScan: Compare to last week, View on Trends, Share with practitioner.
 
-### 2. Soften Bioenergetic Priorities sub-cluster scores during baseline (lines ~320–342)
+8. **Practice & tutorials** — Keep dashboard's row → `/detect/practice`.
 
-Currently sub-cluster scores always render in `ZONE_TEXT[sZone]`. Make them baseline-aware to match the pillar tiles:
+9. **Ask Coach** — Single combined coach card → `/ai-coach?context=scan-week-6`.
 
-- During `baseline.isEstablishing`: score renders `text-foreground`
-- After baseline locks: score reverts to `ZONE_TEXT[sZone]`
+## Routing changes
 
-Sub-cluster name text and tile chrome unchanged. Locked (`s.locked`) state still shows `—`.
+- `/detect/latest` → redirect to `/dashboard` (replace `LatestScan` route element with a `<Navigate to="/dashboard" replace />`). The drill-in routes (`/detect/latest/vitality`, `/detect/latest/notable-shift`, `/detect/latest/capture`) stay intact.
+- Update the `LatestScan.tsx` file: either delete it and remove the import, or leave a thin redirect component. Plan: delete the file and remove the import from `App.tsx` for cleanliness.
+- Anywhere else linking to `/detect/latest` (e.g. the dashboard hero currently navigates there) gets repointed to the appropriate sub-route or stays on `/dashboard`.
 
-### 3. Add Information-color left stripe to the Bioenergetic Priorities card (lines ~302–344)
+## Out of scope
 
-Add a 3px-wide vertical stripe along the full left edge of the Priorities card at ~50% opacity of the Information purple. Implementation: relative wrapper + absolutely-positioned `span` with `background: hsl(270 60% 70% / 0.5)`, `aria-hidden`. Card tint and `rounded-t-none` shape unchanged. No `(I)` chip in the header.
+- No changes to `/home`, pillar detail pages, Vitality Breakdown, Notable Shift, Capture Detail, Rec Detail, Trends, History, Recs Archive, or scoring logic.
+- No new design tokens; reuse existing `glass-card`, zone colors, typography.
 
-### 4. Shorten the Priorities subtitle (line 318)
+## Technical notes
 
-Change subtitle text from:
-
-> From Control · sub-scores from voice scan, drives your recommendations
-
-To:
-
-> From Control · drives your recommendations
-
-### Out of scope (unchanged)
-
-Vitality hero (gauge, formula subtitle, `I × V / R` chips, baseline callout), "Four Pillars" header, sub-cluster grid layout (stays 2×2), This Week's 5 Infoceuticals, Today's GEM Program, Ask the Coach, Weekly Scan Streak, Find a Practitioner, top/bottom nav, routing, scoring.
-
-### Affordance / a11y preserved
-
-- Whole pillar tile + whole Priorities card + each sub-cluster tile remain `<button>` with `active:scale-[0.98]` and descriptive `aria-label`
-- All stripes (pillar left edges, Priorities card left edge) are `aria-hidden="true"` decoration
-- `I × V / R` chips under Vitality Score stay non-interactive
-
-### Tradeoff to flag (no code change now)
-
-After this delta, the colored stripes on the pillar tiles rely on the `I × V / R` chips under the Vitality Score as the only equation key. If usability testing shows users miss the link, the lightest fallback is a one-line caption under the "Four Pillars" header — not added pre-emptively.
+- Edit `src/pages/Dashboard.tsx` to compose the merged sections (mostly a copy-port of JSX from `LatestScan.tsx` interleaved with existing dashboard sections).
+- Edit `src/App.tsx`: remove `LatestScan` import + route, or replace the route's element with `<Navigate to="/dashboard" replace />` from `react-router-dom`.
+- Delete `src/pages/detect/LatestScan.tsx`.
+- Keep accessibility: every tappable card retains `role="button"`, `aria-label`, `active:scale-[0.98]`.
