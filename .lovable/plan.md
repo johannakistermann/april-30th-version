@@ -1,24 +1,33 @@
-## Simplify Vitality breakdown — drop Information, promote Voltage & Resistance
+## Promote Voltage & Resistance to standalone scores
 
-Edit `src/pages/detect/VitalityBreakdown.tsx` and update the Vitality hero subtitle on `src/pages/Dashboard.tsx`. UI/presentation only — no scoring engine changes.
+Vitality currently renders as one hero with Voltage/Resistance shown as inputs (formula chips, "Voltage / Resistance" subtitle, "How it's computed" circles). The user wants them displayed as separate, dedicated scores alongside Vitality — not as a formula. Information stays removed.
 
-### 1. `src/pages/detect/VitalityBreakdown.tsx`
+### 1. `src/pages/Home.tsx` — Vitality hero card
 
-- **Data**: remove the `information` object from `data`, and drop the `information` series from `data.trend`. Keep `vitality`, `voltage`, `resistance`, pillar rows, and the trend arrays for vitality + voltage.
-- **Header description**: rewrite to two factors only — e.g. *"Your Vitality reflects two things: how much energy your body is producing and storing (Voltage), and how much friction it's fighting (Resistance)."*
-- **Section 1 — How it's computed**: remove the Information circle and the leading `×` operator. New row reads `Voltage  /  Resistance  =  Vitality` (3 circles + 2 operators). Drop the trailing paragraph about Information modulating ±10%.
-- **Section 2 — Information**: delete the entire card (including the two `Constitutional Pattern` and `Cross-Modal Agreement` PillarRows).
-- **Section 3 (Voltage)** and **Section 4 (Resistance)**: keep as-is. They are now the two top-level dedicated scores.
-- **Section 5 — 6-week trend**: remove the Information dashed path and its legend entry. Keep Vitality (amber, thick) and Voltage (teal). Drop the secondary axis helper `yI` and the `PURPLE` constant if unused. Update the "Open in Trends" link query to `?series=vitality,voltage`.
-- **Section 6 — auto insight**: rewrite copy to reference only Voltage and Resistance (no Information multiplier).
-- **Section 7 — Coach prompt**: change label/aria to *"Ask Coach about Voltage or Resistance"*.
-- Clean up: remove now-unused `PURPLE` constant and any imports that are no longer referenced.
+- Remove the "Information × Voltage / Resistance" subtitle (line 163) and the I × V / R chip row (lines 164–174).
+- Replace the single Vitality circle layout with a 3-up score row:
+  - Vitality (current ring + score) on the left, kept as the primary tile.
+  - Two compact stat tiles to the right showing **Voltage** (`vitality.voltage`, teal/success accent) and **Resistance** (`100 - Math.round(vitality.resistanceEfficiency * 100)`, destructive accent), each with a small label and the score.
+- Keep the trend / "establishing baseline" copy below.
+- Whole block remains a single button navigating to `/dashboard`.
 
-### 2. `src/pages/Dashboard.tsx`
+### 2. `src/pages/Dashboard.tsx` — Detect hero
 
-- In the Vitality hero card, replace the italic subtitle `"Information × Voltage / Resistance"` with `"Voltage / Resistance"` so the formula tag matches the new model.
+- Keep the existing Vitality hero card (lines 138–178) but remove the italic "Voltage / Resistance" subtitle (lines 173–175). Vitality stands alone.
+- Insert a new sibling row directly below the Vitality card (above the Notable Shift button) containing two side-by-side score tiles:
+  - **Voltage** tile — score from `vitality.voltage`, teal accent, label "Voltage · energy & repair", taps through to `/detect/latest/vitality#voltage`.
+  - **Resistance** tile — score `100 - vitality.resistanceEfficiency*100`, destructive accent, label "Resistance · friction & load", taps through to `/detect/latest/vitality#resistance`.
+- Source data from `useVitality()` (already imported pattern; if not, add the hook to Dashboard like Home does and replace the hard-coded `62`/`Amber` with `vitality.score` / `vitality.zone` for consistency — minimal change, presentation-only).
+
+### 3. `src/pages/detect/VitalityBreakdown.tsx` — restructure header
+
+- Replace the single Vitality hero header (lines ~headers around line ~display of `data.vitality`) with a 3-up score header: **Vitality**, **Voltage**, **Resistance** as equally-weighted scores, each with its own zone color and value. Vitality keeps the WoW delta chip.
+- Demote / remove the "How it's computed" circle row (Voltage / Resistance = Vitality). The three scores at the top now communicate this on their own; no formula UI needed.
+- Add `id="voltage"` to the Voltage section card and `id="resistance"` to the Resistance section card so the Dashboard tiles can deep-link.
+- Trend chart, auto-insight, and Coach prompt sections stay as-is.
 
 ### Out of scope
 
-- No changes to `src/lib/scoring/*` — the underlying `computeVitality` already uses Voltage × Resistance Efficiency and never surfaced Information as a multiplier; this edit just brings the breakdown UI in line with that model.
-- No route or navigation changes.
+- No changes to `src/lib/scoring/*`. `vitality.voltage` and `vitality.resistanceEfficiency` are already computed; we're only re-presenting them.
+- No routing changes beyond hash anchors.
+- No changes to the Four Pillars grid on Home (the `stripe: "info"|"v"|"r"|"split"` accent system stays — it's about pillar contribution, not the Vitality formula).
