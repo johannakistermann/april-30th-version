@@ -1,7 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ChevronRight, MessageSquare, ChevronDown, MoreVertical } from "lucide-react";
+import { ArrowLeft, ChevronRight, MessageSquare, ChevronDown, MoreVertical, Gauge, Zap, Heart, Brain } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+
+const PILLAR_NAV = [
+  { id: "control", label: "Control", icon: Gauge },
+  { id: "energy", label: "Energy", icon: Zap },
+  { id: "recovery", label: "Recovery", icon: Heart },
+  { id: "stress-nervous", label: "Stress", icon: Brain },
+] as const;
 
 const PURPLE = "hsl(270 60% 70%)";
 
@@ -102,6 +109,26 @@ const ControlPillarDetail = () => {
           >
             <MoreVertical className="w-4 h-4" />
           </button>
+        </div>
+
+        {/* Pillar Switcher */}
+        <div className="px-6 mb-2 flex gap-2 overflow-x-auto scrollbar-hide">
+          {PILLAR_NAV.map((p) => {
+            const isActive = p.id === "control";
+            const Icon = p.icon;
+            return (
+              <button
+                key={p.id}
+                onClick={() => !isActive && navigate(`/pillar/${p.id}`)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+                  isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {p.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Page header */}
