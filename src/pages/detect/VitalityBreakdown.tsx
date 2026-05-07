@@ -136,7 +136,7 @@ const VitalityBreakdown = () => {
         </div>
 
         {/* Section 2 — Voltage */}
-        <div className="px-5 mb-3">
+        <div id="voltage" className="px-5 mb-3 scroll-mt-20">
           <div className="glass-card p-5">
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
@@ -157,7 +157,7 @@ const VitalityBreakdown = () => {
         </div>
 
         {/* Section 3 — Resistance */}
-        <div className="px-5 mb-3">
+        <div id="resistance" className="px-5 mb-3 scroll-mt-20">
           <div className="glass-card p-5">
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
