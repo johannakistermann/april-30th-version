@@ -52,7 +52,7 @@ import FindPractitioner from "./pages/FindPractitioner";
 import ClientDetail from "./pages/ClientDetail";
 import Subscription from "./pages/Subscription";
 import NotFound from "./pages/NotFound";
-import LatestScan from "./pages/detect/LatestScan";
+
 import Trends from "./pages/detect/Trends";
 import ScanHistory from "./pages/detect/ScanHistory";
 import RecArchive from "./pages/detect/RecArchive";
