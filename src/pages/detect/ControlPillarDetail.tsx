@@ -111,6 +111,26 @@ const ControlPillarDetail = () => {
           </button>
         </div>
 
+        {/* Pillar Switcher */}
+        <div className="px-6 mb-2 flex gap-2 overflow-x-auto scrollbar-hide">
+          {PILLAR_NAV.map((p) => {
+            const isActive = p.id === "control";
+            const Icon = p.icon;
+            return (
+              <button
+                key={p.id}
+                onClick={() => !isActive && navigate(`/pillar/${p.id}`)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+                  isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {p.label}
+              </button>
+            );
+          })}
+        </div>
+
         {/* Page header */}
         <div className="px-6 pt-2 pb-4">
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-display">
