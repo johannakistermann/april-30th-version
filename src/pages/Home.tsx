@@ -248,9 +248,14 @@ const Home = () => {
         {hasScanned ? (
           <div className="px-5 pb-3">
             <div
-              className="w-full rounded-xl rounded-t-none border border-border/60 border-t-0 p-3.5"
+              className="relative w-full rounded-xl rounded-t-none border border-border/60 border-t-0 overflow-hidden p-3.5 pl-4"
               style={{ background: "hsl(270 60% 70% / 0.06)" }}
             >
+              <span
+                aria-hidden="true"
+                className="absolute left-0 top-0 bottom-0 w-[3px]"
+                style={{ background: "hsl(270 60% 70% / 0.5)" }}
+              />
               <div className="flex items-start justify-between mb-1 gap-2">
                 <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display leading-tight">Bioenergetic Priorities</p>
                 <button
@@ -262,7 +267,7 @@ const Home = () => {
                 </button>
               </div>
               <p className="text-[10px] text-muted-foreground leading-snug mb-2.5">
-                From Control · sub-scores from voice scan, drives your recommendations
+                From Control · drives your recommendations
               </p>
               <div className="grid grid-cols-2 gap-2">
                 {controlSubs.map((s) => {
@@ -274,6 +279,7 @@ const Home = () => {
                     .replace("Digestion & Metabolism", "Digestion")
                     .replace("Immunity & Defence", "Immunity");
                   const clusterSlug = encodeURIComponent(s.name);
+                  const scoreColor = baseline.isEstablishing ? "text-foreground" : ZONE_TEXT[sZone];
                   return (
                     <button
                       key={s.name}
@@ -282,7 +288,7 @@ const Home = () => {
                       className="flex items-center justify-between border border-border/60 rounded-lg px-3 py-2.5 bg-card/40 active:scale-[0.98] transition-transform text-left"
                     >
                       <span className="text-xs text-foreground/90">{shortName}</span>
-                      <span className={`text-sm font-medium ${ZONE_TEXT[sZone]}`}>{s.locked ? "—" : sScore}</span>
+                      <span className={`text-sm font-medium ${scoreColor}`}>{s.locked ? "—" : sScore}</span>
                     </button>
                   );
                 })}
