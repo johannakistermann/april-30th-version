@@ -77,17 +77,6 @@ const Dashboard = () => {
         <p className="text-sm text-muted-foreground mt-1">Tap any card below to dig in</p>
       </div>
 
-      {/* Section 1 — Next scan */}
-      <div className="px-6 mb-5">
-        <div className="glass-card p-5">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-medium">
-            Next scan in 4 days
-          </p>
-          <p className="text-lg font-display font-semibold mt-1">Sunday, 10 May</p>
-          <p className="text-xs text-muted-foreground mt-0.5">Last scanned 17 minutes ago</p>
-        </div>
-      </div>
-
       {/* Section 2 — Latest scan hero */}
       <div className="px-6 mb-5">
         <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display font-medium mb-2">
