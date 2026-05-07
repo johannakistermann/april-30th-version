@@ -444,7 +444,7 @@ const Home = () => {
           <div className="bg-card/60 border border-border/60 rounded-xl px-3.5 py-3">
             <div className="flex items-baseline justify-between mb-2.5">
               <p className="text-xs font-medium">Weekly scan streak</p>
-              <span className="text-[11px] text-warning font-medium">{Math.max(1, baselineWeek)} week{baselineWeek === 1 ? "" : "s"}</span>
+              <span className="text-[11px] text-warning font-medium">{Math.max(1, baselineWeek)} of 4</span>
             </div>
             <div className="flex gap-1 mb-2">
               {[0, 1, 2, 3].map((i) => (
@@ -455,7 +455,7 @@ const Home = () => {
               ))}
             </div>
             <p className="text-[10px] text-muted-foreground leading-snug">
-              Scan each week to lock your baseline by week 4. Next scan due Sunday.
+              {Math.max(0, 4 - Math.max(1, baselineWeek))} more weekly scans to lock your baseline · next due Sunday.
             </p>
           </div>
         </div>
