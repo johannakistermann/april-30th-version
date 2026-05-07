@@ -1,78 +1,91 @@
-# Capture Quality Detail Screen
+# Notable Shift Detail Screen
 
-Replace the placeholder at `src/pages/detect/CaptureDetail.tsx` (route `/detect/latest/capture`) with a full per-modality breakdown of the latest scan. Reuse existing design tokens (`glass-card`, `bg-warning`, `bg-success`, `bg-destructive`, `text-muted-foreground`, font-display, ZONE_TEXT) — no new tokens.
+Replace the placeholder at `src/pages/detect/NotableShift.tsx` (route `/detect/latest/notable-shift`) with a parameterized week-over-week shift narrative. Reuse `glass-card`, `bg-warning`, `bg-success`, `bg-destructive`, `text-primary`, font-display, and the `ActionPill`/`SectionHeader` patterns established in `Dashboard.tsx`.
+
+## Data shape (hardcoded V1, structured for V1.x)
+
+```ts
+type ShiftKind = "rec-reshuffle" | "pillar-dip" | "subcluster" | "acute-flag";
+type Magnitude = "routine" | "notable" | "acute";
+type ShiftRow = { label: string; before: string; after: string; afterTone?: "success" | "warning" | "destructive" | "primary"; note?: string };
+type RecRow = { rank: number; before: string; after: string; moved?: "new-top" | "demoted" | "stable" };
+```
+
+Single mock object for this week (`rec-reshuffle`, magnitude `routine`):
+- headline: "Recovery softened, top focus shifted to your kidneys"
+- eyebrow: "WEEK 5 → WEEK 6"
+- magnitude callout copy: "A 3-point Recovery dip with one recommendation reshuffle is within normal weekly variation — no need to act differently this week."
+- diff rows: Vitality 67 → 72 (success), Recovery 73 → 70 (warning, with sub-note about sleep/HRV), Top recommendation "Liver Driver" → "Kidney Driver" (primary)
+- Why section: 2-3 sentences about voice resonance + overnight HRV pointing to NS recovery, closing reassurance "The Liver Driver signal hasn't gone away (it's still #2)."
+- Full rec list: 5 positions, W5 → W6, Liver↔Kidney swapped at #1/#2, others stable
+- Coach prompt: "Why did Kidney Driver overtake Liver?"
 
 ## Layout (top → bottom)
 
 ### 1. Back nav bar
-- Left: chevron-left + "Latest scan" → `navigate(-1)` (falls back to `/dashboard`)
-- Center: "Capture quality" (text-sm, semibold)
-- Right: `MoreHorizontal` overflow icon (no menu wired in V1)
+Sticky bar matching `CaptureDetail`:
+- Left: chevron-left + "Latest scan" → `navigate(-1)` fallback `/dashboard`
+- Center: "Notable shift"
+- Right: `MoreHorizontal` (no menu wired)
 
-### 2. Page header
-- Eyebrow: `WEEK 6 · CAPTURED 17 MIN AGO` (text-[11px] uppercase tracking-wider muted)
-- H1: **"4 of 5 clean"** — `font-display text-[32px] font-medium`
-- Body: muted text explaining tongue lighting → Medium confidence on Liver/Stomach Driver recs
+### 2. Headline
+- Eyebrow: `WEEK 5 → WEEK 6` (text-[11px] uppercase tracking-wider muted)
+- H1: `font-display text-[28px] font-medium leading-tight` — story sentence, not stats
 
-### 3. Per-modality breakdown
-Section header `PER-MODALITY BREAKDOWN`. Five cards stacked, **warned card first**.
+### 3. Shift magnitude indicator
+`glass-card p-4`:
+- Top row: label `SHIFT MAGNITUDE` (left) + zone pill on right (`ROUTINE` green / `NOTABLE` amber / `ACUTE FLAG` red)
+- 3-segment horizontal bar (h-2 rounded-full, gap-1, grid-cols-3): the active segment fills with the zone color at full opacity, inactive at `/15`. Small labels under each segment: `Routine` / `Notable` / `Acute flag` (10px, current bold)
+- Body copy underneath (text-sm muted, leading-relaxed)
 
-**Warned card (Tongue)** — `glass-card` with amber left-border accent (`border-l-4 border-warning`), larger padding:
-- Top row: warning icon container (`bg-warning/15`), "Tongue capture" title + amber "WARNED" pill
-- Subtitle: "Lighting was uneven across the tongue surface"
-- Nested sub-card (`bg-muted/30 rounded-md p-3`): label `WHAT THIS AFFECTS`, body text with **Pillar 1 Headline Score**, **Liver Driver**, **Stomach Driver** styled `text-foreground font-medium` against muted surrounding text. Hardcoded for V1.
-- Two buttons (grid-cols-2 gap-2):
-  - "Retake now ›" — primary amber (`bg-warning text-warning-foreground`) → `/scan/retake/tongue`
-  - "Tutorial ›" — secondary (`variant="outline"`) → `/detect/practice` (with `?modality=tongue`)
+For `acute-flag`: copy turns to "This change is larger than your usual weekly variation. Worth paying attention to." Pill + active segment use `destructive`.
 
-**Four clean cards** — compact rows (`glass-card p-3 flex items-center gap-3`):
-- Small green check icon (`bg-success/15`)
-- Modality name + green "CLEAN" pill (text-[10px])
-- One-line muted subtitle
-- ChevronRight on right
-- Tap → `/detect/latest/capture/[modality]` (placeholder route, fine if it 404s in V1 — or send to existing CaptureDetail with query param)
+### 4. What changed (before/after diff)
+SectionHeader `WHAT CHANGED`. `glass-card divide-y divide-border overflow-hidden`:
 
-Order + subtitles:
-1. Voice resonance — "Quiet environment · clear voice signal"
-2. Breath capacity — "Full inhale captured · steady exhale"
-3. Face sweep — "Even lighting · 8 features detected"
-4. GEM HRV — "Continuous overnight tracking · 7h coverage"
+Each row (`p-3`):
+- Top line: row label (text-xs muted uppercase tracking-wider, e.g. "Vitality", "Recovery", "Top recommendation")
+- Two-column grid (`grid-cols-[1fr_auto_1fr] items-center gap-3`):
+  - Left: `WK 5` micro-label + value (text-foreground/60, font-display)
+  - Center: `→` arrow (ChevronRight, muted)
+  - Right: `WK 6` micro-label + value styled by `afterTone` (e.g. `text-warning` for Recovery, `text-success` for Vitality, `text-primary font-medium` for the new top rec)
+- Optional `note` line below (text-xs muted) — Recovery row gets "Sleep quality and overnight HRV both softened slightly. Your other three pillars are stable."
 
-### 4. Capture health over time
-Section header `CAPTURE HEALTH OVER TIME`. `glass-card`:
-- Header row: "Clean captures last 6 weeks" (left) · "28 of 30" (right, `text-success`)
-- Bar chart: 6 columns, each = 5 stacked horizontal segments (h-2 rounded-sm). Inline SVG or flex divs. Color per segment: success / warning / destructive.
-  - W1, W3, W4, W5 = 5 green
-  - W2 = 4 green + 1 amber (tongue)
-  - W6 = 4 green + 1 amber (tongue), label highlighted (`text-foreground font-medium`); other labels muted
-- Below: insight line — "Tongue lighting flagged in **2 of your last 6 scans** · worth checking your usual scan environment." with that fragment in `text-warning`.
+### 5. Why this happened
+SectionHeader `WHY THIS HAPPENED`. `glass-card p-4`:
+- Small icon (`Sparkles` or `Activity`) in `bg-primary/15`
+- 2-3 sentence explanation, last sentence is the reassurance line styled `text-foreground` (others `text-muted-foreground`)
 
-### 5. Practice & tutorials card
-Standard nav card (no section label):
-- Teal icon (`bg-accent/15`, GraduationCap or BookOpen)
-- Title "Practice & tutorials" + subtitle "Get cleaner captures across all 5 modalities"
-- Right: blue "Open ›" pill (reuse `ActionPill` pattern from Dashboard) → `/detect/practice`
+### 6. Full recommendations comparison
+SectionHeader `RECOMMENDATIONS · WEEK 5 → WEEK 6` with right action "Latest scan ›" → `/dashboard`.
 
-### 6. Coach prompt
-Subtle full-width card (`glass-card` with coach accent border or `bg-primary/5`), smaller:
-- MessageCircle icon
-- "Should I retake or wait until next week?"
+`glass-card divide-y divide-border overflow-hidden`. 5 rows, each `p-3 flex items-center gap-3`:
+- Rank number (`#1`..`#5`, font-display, w-6, muted)
+- Two-column rec name diff: before (text-muted-foreground) → after (primary `text-foreground font-medium` for the new #1, muted for stable)
+- Right: tiny tag — "NEW #1" (primary pill) on the row that took #1, "↓" muted arrow on the demoted, nothing on stable rows
+
+### 7. Coach prompt
+Same compact card pattern as `CaptureDetail`:
+- MessageCircle in `bg-primary/15`
+- Contextual question text (varies by `kind`)
 - ChevronRight
-- Tap → `/ai-coach?context=capture-quality-week-6`
+- Tap → `/ai-coach?context=notable-shift-week-6`
+
+Coach prompt copy table (in component constant):
+- `rec-reshuffle`: "Why did {newTop} overtake {oldTop}?"
+- `pillar-dip`: "Why is {pillar} softer?"
+- `subcluster`: "What's driving the {cluster} shift?"
+- `acute-flag`: "Should I be worried about this?"
 
 ## Affordance / a11y
-- All tappable cards: `role="button"`, `tabIndex={0}`, `aria-label`, `active:scale-[0.98] transition-transform`
-- Buttons inside warned card stop propagation so chevron-tap of the parent doesn't fire (parent isn't tappable here — only buttons are)
+- Cards/buttons: `role="button"`, `tabIndex={0}`, `aria-label`, `active:scale-[0.98] transition-transform`
+- Magnitude bar: `role="img"` with `aria-label="Shift magnitude: routine"`
 
 ## Files
-- **Edit**: `src/pages/detect/CaptureDetail.tsx` — replace Placeholder with full implementation. All data hardcoded inline (no new lib files).
-- **No routing changes** — `/detect/latest/capture` already wired in `App.tsx`.
-- Per-modality detail routes (`/detect/latest/capture/[modality]`) are NOT added in this pass — clean cards link to those paths but they'll hit `NotFound`. Acceptable per brief ("placeholder routes are fine for V1"). Can add a single catch-all placeholder if you'd prefer; flag below.
+- **Edit**: `src/pages/detect/NotableShift.tsx` — replace Placeholder with full implementation. Mock data + types defined inline.
+- **No routing changes** — `/detect/latest/notable-shift` already wired.
 
 ## Out of scope (per brief)
-- Image previews of captures
-- Dynamic primary-witnesses → recs mapping (hardcoded)
-- Per-modality detail pages
-
-## Open question
-Add a single placeholder route `/detect/latest/capture/:modality` → `Placeholder` so clean-card taps don't 404? Low effort; recommend yes.
+- Real shift-classification logic (V1 hardcodes `routine` unless an acute flag is present)
+- Per-rec drill-in from the comparison list (rows are display-only in V1)
+- Wiring the four shift-kind variants to live data — only the `rec-reshuffle` mock renders for V1, but the data shape and conditional styling support all four
