@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useInteractionTracker } from "@/hooks/useInteractionTracker";
 import AuthGuard from "@/components/AuthGuard";
 import { CartProvider } from "@/contexts/CartContext";
@@ -52,7 +52,7 @@ import FindPractitioner from "./pages/FindPractitioner";
 import ClientDetail from "./pages/ClientDetail";
 import Subscription from "./pages/Subscription";
 import NotFound from "./pages/NotFound";
-import LatestScan from "./pages/detect/LatestScan";
+
 import Trends from "./pages/detect/Trends";
 import ScanHistory from "./pages/detect/ScanHistory";
 import RecArchive from "./pages/detect/RecArchive";
@@ -121,7 +121,7 @@ const AppContent = () => {
       <Route path="/my-practitioner" element={<Protected><MyPractitioner /></Protected>} />
       <Route path="/find-practitioner" element={<Protected><FindPractitioner /></Protected>} />
       <Route path="/subscription" element={<Protected><Subscription /></Protected>} />
-      <Route path="/detect/latest" element={<Protected><LatestScan /></Protected>} />
+      <Route path="/detect/latest" element={<Navigate to="/dashboard" replace />} />
       <Route path="/detect/trends" element={<Protected><Trends /></Protected>} />
       <Route path="/detect/history" element={<Protected><ScanHistory /></Protected>} />
       <Route path="/detect/recs" element={<Protected><RecArchive /></Protected>} />
