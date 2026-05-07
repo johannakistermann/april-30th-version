@@ -188,47 +188,135 @@ const Home = () => {
           </button>
         </div>
 
-        {/* 3 pillar tiles */}
-        <div className="px-5 pb-3 grid grid-cols-3 gap-2">
-          {[pillars.energy, pillars.recovery, pillars.stress].map((p) => {
-            const tk = zoneToken(p.zone);
-            const shortName = p.id === "stress-nervous" ? "Stress & NS" : p.name;
-            return (
-              <button
-                key={p.id}
-                onClick={() => navigate(`/pillar/${p.id}`)}
-                className={`relative overflow-hidden rounded-xl px-2 py-2.5 text-center active:scale-[0.98] transition-transform ${ZONE_TILE_BG[tk]}`}
+        {/* FOUR PILLARS — 2x2 grid */}
+        <div className="px-5 pb-1">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-display mb-1.5">Four Pillars</p>
+        </div>
+        <div className="px-5 pb-0 grid grid-cols-2 gap-2">
+          {(() => {
+            const INFO_BG = "hsl(270 60% 70% / 0.15)";
+            const INFO_FG = "hsl(270 60% 70%)";
+            const TermChip = ({ letter, tone }: { letter: "I" | "V" | "R"; tone: "info" | "v" | "r" }) => (
+              <span
+                aria-hidden="true"
+                className={`px-1.5 py-0.5 rounded-md text-[10px] font-display font-semibold ${
+                  tone === "v" ? "bg-success/15 text-success" : tone === "r" ? "bg-destructive/15 text-destructive" : ""
+                }`}
+                style={tone === "info" ? { background: INFO_BG, color: INFO_FG } : undefined}
               >
-                {p.id === "recovery" && (
-                  <span aria-hidden className="absolute left-0 top-0 bottom-0 w-1 flex flex-col">
-                    <span className="flex-1 bg-success" />
-                    <span className="flex-1 bg-destructive" />
-                  </span>
-                )}
-                <p className={`text-[22px] font-display font-medium leading-none ${ZONE_TEXT[tk]}`}>{p.score}</p>
-                <p className="text-[10px] text-foreground/80 mt-1">{shortName}</p>
-                <p className={`text-[8px] tracking-wider mt-0.5 ${ZONE_TEXT[tk]}`}>{zoneLabel(p.zone)}</p>
-              </button>
+                {letter}
+              </span>
             );
-          })}
+
+            const tiles: Array<{
+              id: string;
+              shortName: string;
+              score: number;
+              zone: "green" | "amber" | "red";
+              term: React.ReactNode;
+              isControl?: boolean;
+              isRecovery?: boolean;
+              ariaTerm: string;
+            }> = [
+              {
+                id: "control",
+                shortName: "Control",
+                score: control.score,
+                zone: control.zone,
+                term: (<><TermChip letter="I" tone="info" /><span className="text-[10px] text-foreground/70">Information</span></>),
+                isControl: true,
+                ariaTerm: "Information",
+              },
+              {
+                id: "energy",
+                shortName: pillars.energy.name,
+                score: pillars.energy.score,
+                zone: pillars.energy.zone,
+                term: (<><TermChip letter="V" tone="v" /><span className="text-[10px] text-foreground/70">Voltage</span></>),
+                ariaTerm: "Voltage",
+              },
+              {
+                id: "recovery",
+                shortName: pillars.recovery.name,
+                score: pillars.recovery.score,
+                zone: pillars.recovery.zone,
+                term: (<><TermChip letter="V" tone="v" /><TermChip letter="R" tone="r" /><span className="text-[10px] text-foreground/70">split</span></>),
+                isRecovery: true,
+                ariaTerm: "Voltage and Resistance split",
+              },
+              {
+                id: "stress-nervous",
+                shortName: "Stress & NS",
+                score: pillars.stress.score,
+                zone: pillars.stress.zone,
+                term: (<><TermChip letter="R" tone="r" /><span className="text-[10px] text-foreground/70">Resistance</span></>),
+                ariaTerm: "Resistance",
+              },
+            ];
+
+            return tiles.map((t) => {
+              const tk = zoneToken(t.zone);
+              const softened = baseline.isEstablishing;
+              const scoreColor = softened ? "text-foreground" : ZONE_TEXT[tk];
+              const statusColor = softened ? "text-muted-foreground" : ZONE_TEXT[tk];
+              const statusLabel = softened ? "ESTABLISHING" : zoneLabel(t.zone);
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => navigate(`/pillar/${t.id}`)}
+                  aria-label={`${t.shortName} pillar, score ${t.score}, ${t.ariaTerm}. Open pillar detail.`}
+                  className={`relative overflow-hidden rounded-xl px-3 py-3 text-left active:scale-[0.98] transition-transform ${ZONE_TILE_BG[tk]}`}
+                >
+                  {t.isRecovery && (
+                    <span aria-hidden className="absolute left-0 top-0 bottom-0 w-1 flex flex-col">
+                      <span className="flex-1 bg-success" />
+                      <span className="flex-1 bg-destructive" />
+                    </span>
+                  )}
+                  <div className="flex items-baseline justify-between">
+                    <p className={`text-[24px] font-display font-medium leading-none ${scoreColor}`}>{t.score}</p>
+                    <p className="text-[11px] text-foreground/80">{t.shortName}</p>
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-2">
+                    {t.term}
+                  </div>
+                  <div className="flex items-end justify-between mt-2">
+                    <p className={`text-[9px] tracking-wider ${statusColor}`}>{statusLabel}</p>
+                    <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+                  </div>
+                  {t.isControl && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute left-1/2 -translate-x-1/2 -bottom-px h-1.5 w-10 rounded-t-md"
+                      style={{ background: INFO_FG }}
+                    />
+                  )}
+                </button>
+              );
+            });
+          })()}
         </div>
 
-        {/* Bioenergetic Priorities (Control) */}
-        {hasScanned && (
+        {/* Bioenergetic Priorities (Control sub-clusters) */}
+        {hasScanned ? (
           <div className="px-5 pb-3">
-            <button
-              onClick={() => navigate("/pillar/control")}
-              className="w-full bg-card/60 border border-border/60 rounded-xl p-3.5 text-left active:scale-[0.98] transition-transform"
+            <div
+              className="w-full rounded-xl rounded-t-none border border-border/60 border-t-0 p-3.5"
+              style={{ background: "hsl(270 60% 70% / 0.06)" }}
             >
-              <div className="flex items-start justify-between mb-2 gap-2">
-                <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display leading-tight">This Week's Bioenergetic<br/>Priorities</p>
-                <ChevronRight className="w-3.5 h-3.5 text-muted-foreground mt-0.5 flex-shrink-0" />
+              <div className="flex items-start justify-between mb-1 gap-2">
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-display leading-tight">Bioenergetic Priorities</p>
+                <button
+                  onClick={() => navigate("/pillar/control")}
+                  aria-label="Open Control pillar detail"
+                  className="active:scale-[0.95] transition-transform"
+                >
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </button>
               </div>
-              <div className="flex items-baseline gap-2 mb-3">
-                <p className="text-base font-display font-medium">Control</p>
-                <p className={`text-base font-display font-medium ${ZONE_TEXT[zoneToken(control.zone)]}`}>· {control.score}</p>
-                <span className={`text-[9px] tracking-wider ${ZONE_TEXT[zoneToken(control.zone)]}`}>{zoneLabel(control.zone)}</span>
-              </div>
+              <p className="text-[10px] text-muted-foreground leading-snug mb-2.5">
+                From Control · sub-scores from voice scan, drives your recommendations
+              </p>
               <div className="grid grid-cols-2 gap-2">
                 {controlSubs.map((s) => {
                   const sScore = s.score ?? 0;
@@ -238,16 +326,24 @@ const Home = () => {
                     .replace("Detox & Elimination", "Detox & Elim.")
                     .replace("Digestion & Metabolism", "Digestion")
                     .replace("Immunity & Defence", "Immunity");
+                  const clusterSlug = encodeURIComponent(s.name);
                   return (
-                    <div key={s.name} className="flex items-center justify-between border border-border/60 rounded-lg px-3 py-2.5">
+                    <button
+                      key={s.name}
+                      onClick={() => navigate(`/pillar/control?cluster=${clusterSlug}`)}
+                      aria-label={`${shortName} sub-cluster, score ${s.locked ? "pending" : sScore}. Open Control detail.`}
+                      className="flex items-center justify-between border border-border/60 rounded-lg px-3 py-2.5 bg-card/40 active:scale-[0.98] transition-transform text-left"
+                    >
                       <span className="text-xs text-foreground/90">{shortName}</span>
                       <span className={`text-sm font-medium ${ZONE_TEXT[sZone]}`}>{s.locked ? "—" : sScore}</span>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
-            </button>
+            </div>
           </div>
+        ) : (
+          <div className="pb-3" />
         )}
 
         {/* This Week's 5 Infoceuticals */}
